@@ -5,11 +5,12 @@ from flask import Flask
 from flask import request
 
 import json
-from daos import DAOSql
+from lib.daos import DAOSql
 
 response = {
 	"status": 200,
-	"description": "OK"
+	"description": "OK",
+	"data": {}
 }
 
 app = Flask(__name__)
@@ -18,24 +19,29 @@ app = Flask(__name__)
 @app.route("/login", methods=['POST'])
 def login():
 	try:
-		data = request.get_json()
-		response['user'] = data['user_name']
-		response['password'] = data['password']
-		response['email'] = data['email'] if data.has_key('email') else ''
-
-	except:
+		data = request.get_json(cache=False)
+		if data:
+			response['data']['user'] = data['user_name']
+			response['data']['password'] = data['password']
+			if data.has_key('email'):
+				response['data']['email'] = data['email']
+		else:
+			status = 400
+			response['status'] = status
+			response['description'] = "Error: no data received"
+	except Exception as e:
 		status = 400
 		response['status'] = status
-		response['description'] = "Error: no data received"
+		response['description'] = "Error: " + str(e)
 
 	return json.dumps(response)
 
-# endpoint for authentication with username (or e-mail), password
+# endpoint for authentication with username (or e-mail) and password
 @app.route("/signin", methods=['POST'])
 def signin():
 
 	try:
-		data = request.get_json()
+		data = request.get_json(cache=False)
 		response['user'] = data['user_name']
 		response['password'] = data['password']
 
