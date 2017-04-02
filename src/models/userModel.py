@@ -3,17 +3,13 @@
 
 class userModel(object):
 
-	# class variable shared by all instances
-	self._username = ''
-	self._password = ''
-	self._email = ''
-	
 	# class constructor with arguments
 	def __init__(self, data):
 		# instance variable unique to each instance
-		self.username = data['username']
-		self.password = data['password']
-		self.email = data['email']
+		self.id = None
+		self._username = data['user_name']
+		self._password = data['password']
+		self._email = data['email'] if data.has_key('email') else ''
 
 	@property
 	def username(self):
@@ -37,4 +33,4 @@ class userModel(object):
 
 	@email.setter
 	def email(self, value):
-		self._username = value
+		self._email = value

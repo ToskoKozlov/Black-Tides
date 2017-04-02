@@ -5,45 +5,64 @@ from flask import Flask
 from flask import request
 
 import json
-from lib.daos import DAOSql
+from src.models import loginManager
+from src.models import userModel
 
-response = {
-	"status": 200,
-	"description": "OK",
-	"data": {}
-}
-
+# flask init
 app = Flask(__name__)
 
 # endpoint for the creation of a new user
 @app.route("/login", methods=['POST'])
 def login():
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+
 	try:
-		data = request.get_json(cache=False)
-		if data:
-			response['data']['user'] = data['user_name']
-			response['data']['password'] = data['password']
-			if data.has_key('email'):
-				response['data']['email'] = data['email']
-		else:
-			status = 400
-			response['status'] = status
-			response['description'] = "Error: no data received"
+		data = request.get_json(cache=False)	# read request data
 	except Exception as e:
-		status = 400
-		response['status'] = status
+		errors = True
+		response['status'] = 400
 		response['description'] = "Error: " + str(e)
 
+	if not errors:
+		user = userModel.userModel(data)
+		manager = loginManager.loginManager()
+		response = manager.createUser(user)
+	else:
+		status = 400
+		response['status'] = status
+		response['description'] = "Error: no data received"
+
+	if not errors and response['status'] == 200:
+		status = 201
+		response['status'] = status
+		response['description'] = "User succesfully created"
+	else:
+		response['status'] = response['status']
+		response['description'] = response['description']
+
 	return json.dumps(response)
+
 
 # endpoint for authentication with username (or e-mail) and password
 @app.route("/signin", methods=['POST'])
 def signin():
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
 
 	try:
 		data = request.get_json(cache=False)
-		response['user'] = data['user_name']
-		response['password'] = data['password']
+		response['data']['user_name'] = data['user_name']
+		response['data']['password'] = data['password']
 
 	except:
 		status = 400
