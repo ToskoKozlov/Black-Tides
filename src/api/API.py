@@ -30,7 +30,8 @@ def login():
 		response['description'] = "Error: " + str(e)
 
 	if not errors:
-		user = userModel.userModel(data)
+		user = userModel.userModel()
+		user.init(data)
 		manager = loginManager.loginManager()
 		response = manager.createUser(user)
 	else:
