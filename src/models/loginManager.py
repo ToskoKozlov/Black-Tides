@@ -18,4 +18,20 @@ class loginManager(object):
 
 		return response
 
+	# check if a user exists in database
+	def loginUser(self, user):
+		response = {}
+		if self.db:
+			user_token = self.db.getUser(user)
+			if user_token:
+				response['user_token'] = user_token
+				response['status'] = 200
+				response['description'] = 'OK'
+			else:
+				response['status'] = 404
+				response['description'] = 'Error: user ' + user.username + ' not found'
+		else:
+			response['status'] = 500
+			response['description'] = "Error: could not connect to database. "
 
+		return response

@@ -12,8 +12,8 @@ from src.models import userModel
 app = Flask(__name__)
 
 # endpoint for the creation of a new user
-@app.route("/login", methods=['POST'])
-def login():
+@app.route("/user", methods=['POST'])
+def create_user():
 	# response template
 	response = {
 		"status": 200,
@@ -51,8 +51,8 @@ def login():
 
 
 # endpoint for authentication with username (or e-mail) and password
-@app.route("/signin", methods=['POST'])
-def signin():
+@app.route("/login", methods=['POST'])
+def login():
 	# response template
 	response = {
 		"status": 200,
@@ -60,15 +60,24 @@ def signin():
 		"data": {}
 	}
 
-	try:
-		data = request.get_json(cache=False)
-		response['data']['user_name'] = data['user_name']
-		response['data']['password'] = data['password']
+	errors = False
 
-	except:
-		status = 400
-		response['status'] = status
-		response['description'] = "Error: no data received"
+	try:
+		data = request.get_json(cache=False)	# read request data
+	except Exception as e:
+		errors = True
+		response['status'] = 400
+		response['description'] = "Error: " + str(e)
+
+	if not errors:
+		user = userModel.userModel()
+		user.init(data)
+		manager = loginManager.loginManager()
+		response = manager.loginUser(user)
+
+	if errors or response['status'] != 200:
+		response['status'] = response['status']
+		response['description'] = response['description']
 
 	return json.dumps(response)
 

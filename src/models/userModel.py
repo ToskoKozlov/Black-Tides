@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time, datetime
+import time, datetime, hashlib
 
 class userModel(object):
 
@@ -17,9 +17,10 @@ class userModel(object):
 
 
 	def init(self, data):
-		self.username = data['user_name']
+		self.username = data['username'] if data.has_key('username') else ''
 		self.email = data['email'] if data.has_key('email') else ''
 		self.password = data['password']
+		self.user_token = data['user_token'] if data.has_key('user_token') else ''
 
 	@property
 	def username(self):
@@ -59,7 +60,10 @@ class userModel(object):
 
 	@user_token.setter
 	def user_token(self, value):
-		self._user_token = value
+		if value:
+			self._user_token = value
+		else:
+			self._user_token = hashlib.sha256(self.password + self.username + self.email).hexdigest()
 
 	@property
 	def enabled(self):
