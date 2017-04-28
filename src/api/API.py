@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os, sys
+
+sys.path.append('../../Black-Tides')
 
 from flask import Flask
 from flask import request
