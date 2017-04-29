@@ -13,16 +13,19 @@ Create n entries to adventurers table:
  	- RACE (human, elf, dwarf, orc)
 Generates random values for attributes described avobe
 '''
-
+import random, sys, MySQLdb
+sys.path.append('../../Black-Tides')
 from lib.daos import DAOSql
 from src.models import adventurerModel
 from random import randint
-import random
+
+
 
 
 atributes = ['strength', 'agility', 'intelligence', 'magicka', 'vitality', 'bravery']
 classes = ['rogue', 'sword_master', 'war_theurgist', 'warlock']
 races = ['human', 'elf', 'orc', 'dwarf']
+sex = ['male', 'female']
 
 def createAdventurer():
 	adventurer_data = {}
@@ -118,13 +121,23 @@ def adjustAdventurer(adventurer_data):
 	return adventurer_data
 
 db = DAOSql.DAOSql(dbhost = 'localhost', dbuser = 'root', dbpass = 'root', dbname = 'black_tides')
-N = 995
+N = 1001
+
+data = ['localhost', 'root', 'root', 'black_tides']
+conn = MySQLdb.connect(*data)
+
+cursor = conn.cursor()	# create a cursor
 
 # repeat n times
-for n in xrange(0, N):
+for n in xrange(1000, N):
 	# create adventurer
-	adventurer = createAdventurer()
-
+	#adventurer = createAdventurer()
+	
 	# insert adventurer
-	response = db.insertAdventurer(adventurer)
+	#response = db.insertAdventurer(adventurer)
 
+	randSex = random.choice(sex)
+	print randSex
+	query = "UPDATE adventurer SET sex='%s' WHERE id=%i" % (randSex, n)
+	cursor.execute(query)	# execute query
+	conn.commit()	# commit writting data
