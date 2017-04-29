@@ -86,8 +86,8 @@ def login():
 	return json.dumps(response)
 
 # endpoint to get a random number of adventurers
-@app.route("/user_token/<user_token>/adventurers", methods=['GET'])
-def getAdventurers(user_token):
+@app.route("/adventurers", methods=['GET'])
+def getAdventurers():
 	# response template
 	response = {
 		"status": 200,
@@ -97,25 +97,23 @@ def getAdventurers(user_token):
 	errors = False
 
 	# get size parameter
-	size = request.args.get('size')
+	size = int(request.args.get('size')) if request.args.get('size') else 1
 
-	#if there is no size parameter, by default is 1
-	if not size:
-		size = 1
-	if not errors:
-		if re.match('[A-Fa-f0-9]{64}',user_token):
-			manager = gameManager.gameManager()
-			response = manager.getAdventurers(size, user_token)
-		else:
-			errors = True
-			response['status'] = 400
-			response['description'] = 'Error: user_token must be a sha256'
+	manager = gameManager.gameManager()
+	response = manager.getAdventurers(size)
 
 	if errors or response['status'] != 200:
 		response['status'] = response['status']
 		response['description'] = response['description']
 
 	return json.dumps(response)
+
+		#if re.match('[A-Fa-f0-9]{64}',user_token):
+		#	pass
+		#else:
+		#	errors = True
+		#	response['status'] = 400
+		#	response['description'] = 'Error: user_token must be a sha256'
 
 if __name__ == "__main__":
 	app.run(
