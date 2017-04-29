@@ -15,6 +15,7 @@ class adventurerModel(object):
 		self._vitality = ''
 		self._bravery = ''
 		self._race = ''
+		self._sex = ''
 
 	def init(self, data):
 		self.id = data['id']
@@ -26,6 +27,7 @@ class adventurerModel(object):
 		self.vitality = data['vitality']
 		self.bravery = data['bravery']
 		self.race = data['race']
+		self.sex = data['sex']
 
 	def serialize(self):
 		data = {}
@@ -38,6 +40,7 @@ class adventurerModel(object):
 		data['vitality'] = self.vitality
 		data['bravery'] = self.bravery
 		data['race'] = self.race
+		data['sex'] = self.sex
 		return data
 
 	@property
@@ -110,3 +113,11 @@ class adventurerModel(object):
 	@race.setter
 	def race(self, value):
 		self._race = value
+
+	@property
+	def sex(self):
+		return self._sex
+
+	@sex.setter
+	def sex(self, value):
+		self._sex = value
