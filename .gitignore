@@ -86,3 +86,14 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Visual Studio staff
+.pyproj
+.sln
+.suo
+.csproj
+.html
+.png
+*.suo
+Black-Tides/Black-Tides.v12.suo
+*.suo
