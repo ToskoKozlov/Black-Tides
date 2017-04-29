@@ -97,3 +97,4 @@ ENV/
 *.suo
 Black-Tides/Black-Tides.v12.suo
 *.suo
+*.pyproj

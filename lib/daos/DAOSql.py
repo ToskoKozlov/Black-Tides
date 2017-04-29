@@ -18,6 +18,9 @@ class DAOSql(object):
 		if data:
 			self.conn = MySQLdb.connect(*data)	# connect to data base
 
+	'''
+	INSERT FUNCTIONS
+	'''
 	# insert a value into user table
 	def insertUser(self, user):
 		
@@ -37,7 +40,6 @@ class DAOSql(object):
 		
 		if cursor:
 			self.conn.commit()	# commit writting data
-			cursor.close()		# close cursor 
 
 		if not errors:
 			response['status'] = 200
@@ -78,7 +80,38 @@ class DAOSql(object):
 			response['description'] = 'Error: could not insert adventurer'
 		return response
 
+	# add an adventurer to a user
+	def insertUserAdventurer(self, user_token, adventurerID):
+		response = {}
 
+		errors = False
+
+		query = '''INSERT INTO 
+					user_adventurers (user_token, adventurer_id) 
+				VALUES 
+					('%s', '%s')''' % (user_token, adventurerID)
+
+		try:
+			cursor = self.getCursor(query)
+		except self.conn.IntegrityError:
+			errors = True
+			cursor = None
+		
+		if cursor:
+			self.conn.commit()	# commit writting data
+
+		if not errors:
+			response['status'] = 200
+			response['description'] = 'OK'
+		else:
+			response['status'] = 400
+			response['description'] = 'Error: could not insert adventurer'
+		return response
+
+
+	'''
+	GET FUNCTIONS
+	'''
 	# get a user from database
 	def getUser(self, user):
 		user_token = ''
@@ -101,10 +134,48 @@ class DAOSql(object):
 
 		return user_token
 
+	# get an adventurer by id
+	def getAdventurer(self, adventurerID):
+		query = "SELECT * FROM `adventurer` WHERE `id`= %i" % (adventurerID)
+		try:
+			if self.conn:
+				cursor = self.conn.cursor (MySQLdb.cursors.DictCursor) # create a cursor
+				cursor.execute(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			adventurer = cursor.fetchone()		# get all results and keep only the first
+
+		return adventurer
+	
+	# get an item from user_adventurers table
+	def getUserAdventurers(self, userToken):
+		adventurers = []
+		query = "SELECT * FROM `user_adventurers` WHERE `user_token`= '%s'" % (userToken)
+		try:
+			if self.conn:
+				cursor = self.conn.cursor (MySQLdb.cursors.DictCursor) # create a cursor
+				cursor.execute(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			adventurers = cursor.fetchall()		# get all results
+
+		return adventurers
+	'''
+	DATABASE TOOLS
+	'''
 	# return a cursor
 	def getCursor(self, query):
-
 		if self.conn:
 			cursor = self.conn.cursor()	# create a cursor
 			cursor.execute(query)		# execute query
 		return cursor
+
+	# closes connection with database
+	def closeConn(cursor):
+		cursor.close()		# close cursor 

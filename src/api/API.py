@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, sys
+import os, sys, re
 
 sys.path.append('../../Black-Tides')
 
@@ -9,6 +9,7 @@ from flask import request
 
 import json
 from src.models import loginManager
+from src.models import gameManager
 from src.models import userModel
 
 # flask init
@@ -81,6 +82,69 @@ def login():
 	if errors or response['status'] != 200:
 		response['status'] = response['status']
 		response['description'] = response['description']
+
+	return json.dumps(response)
+
+# endpoint to get a random number of adventurers
+@app.route("/adventurers", methods=['GET'])
+def getAdventurers():
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+
+	# get size parameter
+	size = int(request.args.get('size')) if request.args.get('size') else 1
+
+	manager = gameManager.gameManager()
+	response = manager.getAdventurers(size)
+
+	if errors or response['status'] != 200:
+		response['status'] = response['status']
+		response['description'] = response['description']
+
+	return json.dumps(response)
+
+# get all adventurers for a player
+@app.route("/user_token/<user_token>/adventurers", methods=['GET'])
+def getUserAdventurers(user_token):
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+	if re.match('[A-Fa-f0-9]{64}',user_token):
+		manager = gameManager.gameManager()
+		response = manager.getUserAdventurers(user_token)
+	else:
+		errors = True
+		response['status'] = 400
+		response['description'] = 'Error: user_token must be a sha256'
+
+	return json.dumps(response)
+
+# asign an adventurer to a player
+@app.route("/user_token/<user_token>/adventurers/<int:adventurer_id>", methods=['POST'])
+def buyAdventurer(user_token, adventurer_id):
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+	if re.match('[A-Fa-f0-9]{64}',user_token):
+		manager = gameManager.gameManager()
+		response = manager.buyAdventurer(user_token, adventurer_id)
+	else:
+		errors = True
+		response['status'] = 400
+		response['description'] = 'Error: user_token must be a sha256'
 
 	return json.dumps(response)
 
