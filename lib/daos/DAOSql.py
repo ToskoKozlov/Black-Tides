@@ -87,7 +87,7 @@ class DAOSql(object):
 		errors = False
 
 		query = '''INSERT INTO 
-					user_adventurer (user_token, adventurer_id) 
+					user_adventurers (user_token, adventurer_id) 
 				VALUES 
 					('%s', '%s')''' % (user_token, adventurerID)
 
@@ -149,7 +149,23 @@ class DAOSql(object):
 			adventurer = cursor.fetchone()		# get all results and keep only the first
 
 		return adventurer
+	
+	# get an item from user_adventurers table
+	def getUserAdventurers(self, userToken):
+		adventurers = []
+		query = "SELECT * FROM `user_adventurers` WHERE `user_token`= '%s'" % (userToken)
+		try:
+			if self.conn:
+				cursor = self.conn.cursor (MySQLdb.cursors.DictCursor) # create a cursor
+				cursor.execute(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
 
+		if cursor:
+			adventurers = cursor.fetchall()		# get all results
+
+		return adventurers
 	'''
 	DATABASE TOOLS
 	'''

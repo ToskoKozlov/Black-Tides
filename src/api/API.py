@@ -108,12 +108,45 @@ def getAdventurers():
 
 	return json.dumps(response)
 
-		#if re.match('[A-Fa-f0-9]{64}',user_token):
-		#	pass
-		#else:
-		#	errors = True
-		#	response['status'] = 400
-		#	response['description'] = 'Error: user_token must be a sha256'
+# get all adventurers for a player
+@app.route("/user_token/<user_token>/adventurers", methods=['GET'])
+def getUserAdventurers(user_token):
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+	if re.match('[A-Fa-f0-9]{64}',user_token):
+		manager = gameManager.gameManager()
+		response = manager.getUserAdventurers(user_token)
+	else:
+		errors = True
+		response['status'] = 400
+		response['description'] = 'Error: user_token must be a sha256'
+
+	return json.dumps(response)
+
+# asign an adventurer to a player
+@app.route("/user_token/<user_token>/adventurers/<int:adventurer_id>", methods=['POST'])
+def buyAdventurer(user_token, adventurer_id):
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+	if re.match('[A-Fa-f0-9]{64}',user_token):
+		manager = gameManager.gameManager()
+		response = manager.buyAdventurer(user_token, adventurer_id)
+	else:
+		errors = True
+		response['status'] = 400
+		response['description'] = 'Error: user_token must be a sha256'
+
+	return json.dumps(response)
 
 if __name__ == "__main__":
 	app.run(
