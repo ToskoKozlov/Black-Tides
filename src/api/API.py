@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, sys
+import os, sys, re
 
 sys.path.append('../../Black-Tides')
 
@@ -9,6 +9,7 @@ from flask import request
 
 import json
 from src.models import loginManager
+from src.models import gameManager
 from src.models import userModel
 
 # flask init
@@ -77,6 +78,38 @@ def login():
 		user.init(data)
 		manager = loginManager.loginManager()
 		response = manager.loginUser(user)
+
+	if errors or response['status'] != 200:
+		response['status'] = response['status']
+		response['description'] = response['description']
+
+	return json.dumps(response)
+
+# endpoint to get a random number of adventurers
+@app.route("/user_token/<user_token>/adventurers", methods=['GET'])
+def getAdventurers(user_token):
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+
+	# get size parameter
+	size = request.args.get('size')
+
+	#if there is no size parameter, by default is 1
+	if not size:
+		size = 1
+	if not errors:
+		if re.match('[A-Fa-f0-9]{64}',user_token):
+			manager = gameManager.gameManager()
+			response = manager.getAdventurers(size, user_token)
+		else:
+			errors = True
+			response['status'] = 400
+			response['description'] = 'Error: user_token must be a sha256'
 
 	if errors or response['status'] != 200:
 		response['status'] = response['status']
