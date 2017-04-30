@@ -148,6 +148,31 @@ def buyAdventurer(user_token, adventurer_id):
 
 	return json.dumps(response)
 
+# endpoint to get a random number of quests
+@app.route("/quests", methods=['GET'])
+def getQuests():
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+
+	# get size parameter
+	size = int(request.args.get('size')) if request.args.get('size') else 1
+
+	manager = gameManager.gameManager()
+	response = manager.getQuests(size)
+
+	if errors or response['status'] != 200:
+		response['status'] = response['status']
+		response['description'] = response['description']
+
+	return json.dumps(response)
+
+
+
 if __name__ == "__main__":
 	app.run(
 		host = "0.0.0.0",

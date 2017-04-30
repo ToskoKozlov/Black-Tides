@@ -209,6 +209,23 @@ class DAOSql(object):
 			adventurers = cursor.fetchall()		# get all results
 
 		return adventurers
+	
+	# get a quest from database
+	def getQuest(self, questID):
+		query = "SELECT * FROM `quest` WHERE `id`= %i" % (questID)
+		try:
+			if self.conn:
+				cursor = self.conn.cursor (MySQLdb.cursors.DictCursor) # create a cursor
+				cursor.execute(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			quest = cursor.fetchone()		# get all results and keep only the first
+
+		return quest
+
 	'''
 	DATABASE TOOLS
 	'''
@@ -222,3 +239,14 @@ class DAOSql(object):
 	# closes connection with database
 	def closeConn(cursor):
 		cursor.close()		# close cursor 
+
+	# return the last id of a table
+	def getLastID(self, tableName):
+		lastID = 0
+		query = "SELECT id FROM %s ORDER BY id DESC LIMIT 1" % tableName
+		
+		if self.conn:
+			cursor = self.getCursor(query) # create a cursor
+			lastID = cursor.fetchone()[0]
+
+		return lastID

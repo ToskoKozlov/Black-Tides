@@ -3,6 +3,7 @@
 
 from lib.daos import DAOSql
 from src.models import adventurerModel
+from src.models import questModel
 import random
 
 class gameManager(object):
@@ -17,9 +18,11 @@ class gameManager(object):
 		
 		if self.db:
 			adventurers = []
-
+			# get last id to know the limit of the random id
+			idLimit = self.db.getLastID('adventurer')
+			
 			# generate random ids
-			adventurerIDs = self.generateRandomIDs(size)
+			adventurerIDs = self.generateRandomIDs(size, idLimit)
 			
 			for adventurerID in adventurerIDs:
 				adventurer = adventurerModel.adventurerModel()
@@ -80,10 +83,47 @@ class gameManager(object):
 			response['status'] = 400
 			response['description'] = 'Error: invalid adventurer ID'
 		return response
+	
+	# get a random number of quests of a certain level
+	def getQuests(self, size = 1):
+		response = {}
+		
+		if self.db:
+			quests = []
+
+			# get last id to know the limit of the random id
+			idLimit = self.db.getLastID('quest')
+
+			# generate random ids
+			questsIDs = self.generateRandomIDs(size, idLimit)
+			
+			for questID in questsIDs:
+				quest = questModel.questModel()
+				dbquest = self.db.getQuest(questID)
+				quest.init(dbquest)
+				quests.append(quest)
+			
+			if len(quests) > 0:
+				response['status'] = 200
+				response['description'] = 'OK'
+				response['data'] = []
+				for quest in quests:
+					response['data'].append(quest.serialize())
+
+			else:
+				response['status'] = 500
+				response['description'] = "Error: could not obtain any adventurers. "
+
+		else:
+			response['status'] = 500
+			response['description'] = "Error: could not connect to database. "
+
+		return response
+	
 	'''
 	TOOLS
 	'''
-	# returns a list of random integers with range [0-1000]
-	def generateRandomIDs(self, size):
-		randomList = [random.randint(1,1000) for r in xrange(size)]
+	# returns a list of random integers with range [0-idLimit]
+	def generateRandomIDs(self, size, idLimit):
+		randomList = [random.randint(1, idLimit) for r in xrange(size)]
 		return randomList
