@@ -108,6 +108,49 @@ class DAOSql(object):
 			response['description'] = 'Error: could not insert adventurer'
 		return response
 
+	# insert a quest in database
+	def insertQuest(self, quest):
+				
+		response = {}
+
+		errors = False
+
+		query = '''INSERT INTO 
+					quest (
+						level, 
+						gold, 
+						influence, 
+						quest_type, 
+						strength, 
+						intelligence, 
+						agility, 
+						magicka, 
+						vitality, 
+						bravery, 
+						power,
+						quest_time
+					) 
+				VALUES 
+					('%i', '%i', '%i', '%s', '%i', '%i', '%i', '%i', '%i', '%i', '%i', '%i')
+				''' % (quest.level, quest.gold, quest.influence, quest.quest_type, quest.strength, quest.intelligence, quest.agility, quest.magicka, quest.vitality, quest.bravery, quest.power, quest.quest_time)
+
+		try:
+			cursor = self.getCursor(query)
+		except self.conn.IntegrityError:
+			errors = True
+			cursor = None
+		
+		if cursor:
+			self.conn.commit()	# commit writting data
+			cursor.close()		# close cursor 
+
+		if not errors:
+			response['status'] = 200
+			response['description'] = 'OK'
+		else:
+			response['status'] = 400
+			response['description'] = 'Error: could not insert quest'
+		return response
 
 	'''
 	GET FUNCTIONS
