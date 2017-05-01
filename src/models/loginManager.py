@@ -1,16 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from lib.daos import DAOSql
+
+from lib.daos import DAOLogin
+from src.models import userModel
 
 class loginManager(object):
 
 	# class constructor with arguments
 	def __init__(self):
-		self.db = DAOSql.DAOSql(dbhost = 'localhost', dbuser = 'root', dbpass = 'root', dbname = 'black_tides')
+		self.db = DAOLogin.DAOLogin()
 
 	# create a new user in database
-	def createUser(self, user):
+	def createUser(self, data):
 		if self.db:
+			user = userModel.userModel()
+			user.init(data)
 			response = self.db.insertUser(user)
 		else:
 			response['status'] = 500
@@ -19,9 +23,11 @@ class loginManager(object):
 		return response
 
 	# check if a user exists in database
-	def loginUser(self, user):
+	def loginUser(self, data):
 		response = {}
 		if self.db:
+			user = userModel.userModel()
+			user.init(data)
 			user_token = self.db.getUser(user)
 			if user_token:
 				response['user_token'] = user_token

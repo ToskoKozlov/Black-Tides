@@ -1,16 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, sys, re
-
-sys.path.append('../../Black-Tides')
-
+import os, sys, re, json
 from flask import Flask
 from flask import request
-
-import json
+sys.path.append('../../Black-Tides')
 from src.models import loginManager
 from src.models import gameManager
-from src.models import userModel
 
 # flask init
 app = Flask(__name__)
@@ -34,10 +29,8 @@ def create_user():
 		response['description'] = "Error: " + str(e)
 
 	if not errors:
-		user = userModel.userModel()
-		user.init(data)
 		manager = loginManager.loginManager()
-		response = manager.createUser(user)
+		response = manager.createUser(data)
 	else:
 		status = 400
 		response['status'] = status
@@ -74,10 +67,8 @@ def login():
 		response['description'] = "Error: " + str(e)
 
 	if not errors:
-		user = userModel.userModel()
-		user.init(data)
 		manager = loginManager.loginManager()
-		response = manager.loginUser(user)
+		response = manager.loginUser(data)
 
 	if errors or response['status'] != 200:
 		response['status'] = response['status']
