@@ -151,6 +151,33 @@ class DAOSql(object):
 			response['status'] = 400
 			response['description'] = 'Error: could not insert quest'
 		return response
+	
+	# create a new entry in user_quest table
+	def insertUserQuest(self, user_token, questID, finishDate, successRate):
+		response = {}
+
+		errors = False
+
+		query = '''INSERT INTO 
+					user_quest (user_token, quest_id, date_finished, success_rate) 
+				VALUES 
+					('%s', %i, '%s', %f)''' % (user_token, questID, finishDate, successRate)
+		try:
+			cursor = self.getCursor(query)
+		except self.conn.IntegrityError:
+			errors = True
+			cursor = None
+		
+		if cursor:
+			self.conn.commit()	# commit writting data
+
+		if not errors:
+			response['status'] = 200
+			response['description'] = 'OK'
+		else:
+			response['status'] = 400
+			response['description'] = 'Error: could not insert user_quest element'
+		return response
 
 	'''
 	GET FUNCTIONS
@@ -225,6 +252,25 @@ class DAOSql(object):
 			quest = cursor.fetchone()		# get all results and keep only the first
 
 		return quest
+
+	'''
+	UPDATES
+	'''
+	# add questID to user-adventurer table
+	def updateUserAdventurer(self, user_token, adventurer, questID):
+		query = "UPDATE `user_adventurers` SET on_quest=%i WHERE `user_token`='%s' AND `adventurer_id`=%i" % (questID, user_token, adventurer.id)
+
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			self.conn.commit()	# commit writting data
+
+		return cursor
+
 
 	'''
 	DATABASE TOOLS

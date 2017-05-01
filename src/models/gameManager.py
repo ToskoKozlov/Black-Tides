@@ -4,7 +4,7 @@
 from lib.daos import DAOSql
 from src.models import adventurerModel
 from src.models import questModel
-import random
+import random, datetime
 
 class gameManager(object):
 	# class constructor with arguments
@@ -119,6 +119,53 @@ class gameManager(object):
 			response['description'] = "Error: could not connect to database. "
 
 		return response
+
+	# start a quest wit id "questID", for user "user_token" with adventurers "adventurers"
+	def startQuest(self, user_token, adventurers, questID):
+		response = {}
+		
+		if self.db:
+			# get quest wit id questID
+			quest = questModel.questModel()
+			quest.init(self.db.getQuest(questID))
+
+			errors = False
+			for advent in adventurers:
+				if not errors:
+					adventurer = adventurerModel.adventurerModel()
+					adventurer.init(advent)
+
+					try:
+						# insert questID into user_adventurer table for each adventurer given
+						result = self.db.updateUserAdventurer(user_token, adventurer, questID)
+					except Exception, e:
+						errors = True
+						print str(e)
+
+			if not errors and result:
+				# calculate success rate
+				successRate = self.getSuccessRate(adventurers, quest)
+				
+				# finishDate <- calculate finish date
+				now = datetime.datetime.now()
+				finishDate = (now + datetime.timedelta(0,0,0,0, quest.quest_time)).strftime('%Y-%m-%d %H:%M:%S')
+				
+				try:
+					# insert into user_quest table (quest_id, user_token, date_finished, success_rate)
+					self.db.insertUserQuest(user_token, questID, finishDate, successRate)
+				except Exception, e:
+					errors = True
+					print str(e)
+			
+			if errors:
+				response['status'] = 400
+				response['description'] = 'Error: user ' + user_token + ' does not have adventurer ' + str(adventurer.id)
+			else:
+				response['status'] = 200
+				response['description'] = 'OK'
+
+		
+		return response
 	
 	'''
 	TOOLS
@@ -127,3 +174,24 @@ class gameManager(object):
 	def generateRandomIDs(self, size, idLimit):
 		randomList = [random.randint(1, idLimit) for r in xrange(size)]
 		return randomList
+
+	# calculates the success rate of a certain quest with the adventurers given
+	def getSuccessRate(self, adventurers, quest):
+		successRate = 0.0
+		attributes = ['strength', 'agility', 'intelligence', 'magicka', 'vitality', 'bravery']
+		failure_acc = 0.0
+
+		for attribute in attributes:
+			attSum = 0 # summatory of each adventurer attribute
+			questAttr = getattr(quest, attribute) # quest attribute to be reached
+			
+			for adventurer in adventurers:
+				attSum += adventurer[attribute]
+	
+			# check if attSum is enough for the quest
+			if attSum < questAttr:
+				failure_acc += (100 - ((attSum * 100)/float(questAttr))) / 6.0 # divided by the number of attributes to distribute the failure
+		
+		successRate = float("{0:.2f}".format(100 - failure_acc))
+
+		return successRate

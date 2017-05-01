@@ -171,6 +171,42 @@ def getQuests():
 
 	return json.dumps(response)
 
+# endpoint to start a quest
+@app.route("/user_token/<user_token>/quests/<int:questID>", methods=['POST'])
+def startQuest(user_token, questID):
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+
+	try:
+		# check adventurers
+		data = request.get_json(cache=False)	# read request data
+	except Exception, e:
+		errors = True
+		response['status'] = 404
+		response['description'] = "Error: request parameters not found " + str(e)
+
+	if not errors:
+		adventurers = data['adventurers'] if data.has_key('adventurers') else []
+		
+		if adventurers:
+			manager = gameManager.gameManager()
+			response = manager.startQuest(user_token, adventurers, questID)
+		else:
+			response['status'] = 404
+			response['description'] = "Error: adventurers parameters not found"
+
+	if errors or response['status'] != 200:
+		response['status'] = response['status']
+		response['description'] = response['description']
+
+	return json.dumps(response)
+
+
 
 
 if __name__ == "__main__":
