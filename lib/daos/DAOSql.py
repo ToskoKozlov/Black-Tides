@@ -151,6 +151,33 @@ class DAOSql(object):
 			response['status'] = 400
 			response['description'] = 'Error: could not insert quest'
 		return response
+	
+	# create a new entry in user_quest table
+	def insertUserQuest(self, user_token, questID, finishDate, successRate):
+		response = {}
+
+		errors = False
+
+		query = '''INSERT INTO 
+					user_quest (user_token, quest_id, date_finished, success_rate) 
+				VALUES 
+					('%s', %i, '%s', %f)''' % (user_token, questID, finishDate, successRate)
+		try:
+			cursor = self.getCursor(query)
+		except self.conn.IntegrityError:
+			errors = True
+			cursor = None
+		
+		if cursor:
+			self.conn.commit()	# commit writting data
+
+		if not errors:
+			response['status'] = 200
+			response['description'] = 'OK'
+		else:
+			response['status'] = 400
+			response['description'] = 'Error: could not insert user_quest element'
+		return response
 
 	'''
 	GET FUNCTIONS
@@ -209,6 +236,59 @@ class DAOSql(object):
 			adventurers = cursor.fetchall()		# get all results
 
 		return adventurers
+	
+	# get an item from user_quest table
+	def getUserQuests(self, user_token):
+		userQuests = []
+		query = "SELECT * FROM `user_quest` WHERE `user_token`= '%s'" % (user_token)
+		try:
+			if self.conn:
+				cursor = self.conn.cursor (MySQLdb.cursors.DictCursor) # create a cursor
+				cursor.execute(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			userQuests = cursor.fetchall()		# get all results
+
+		return userQuests
+
+	# get a quest from database
+	def getQuest(self, questID):
+		query = "SELECT * FROM `quest` WHERE `id`= %i" % (questID)
+		try:
+			if self.conn:
+				cursor = self.conn.cursor (MySQLdb.cursors.DictCursor) # create a cursor
+				cursor.execute(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			quest = cursor.fetchone()		# get all results and keep only the first
+
+		return quest
+
+	'''
+	UPDATES
+	'''
+	# add questID to user-adventurer table
+	def updateUserAdventurer(self, user_token, adventurer, questID):
+		query = "UPDATE `user_adventurers` SET on_quest=%i WHERE `user_token`='%s' AND `adventurer_id`=%i" % (questID, user_token, adventurer.id)
+
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			self.conn.commit()	# commit writting data
+
+		return cursor
+
+
 	'''
 	DATABASE TOOLS
 	'''
@@ -222,3 +302,14 @@ class DAOSql(object):
 	# closes connection with database
 	def closeConn(cursor):
 		cursor.close()		# close cursor 
+
+	# return the last id of a table
+	def getLastID(self, tableName):
+		lastID = 0
+		query = "SELECT id FROM %s ORDER BY id DESC LIMIT 1" % tableName
+		
+		if self.conn:
+			cursor = self.getCursor(query) # create a cursor
+			lastID = cursor.fetchone()[0]
+
+		return lastID
