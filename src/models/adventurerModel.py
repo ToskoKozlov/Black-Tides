@@ -16,9 +16,10 @@ class adventurerModel(object):
 		self._bravery = ''
 		self._race = ''
 		self._sex = ''
+		self._price = None
 
 	def init(self, data):
-		self.id = data['id']
+		self.id = data['id'] if data.has_key('id') else 0
 		self.adv_class = data['adv_class']
 		self.strength = data['strength']
 		self.agility = data['agility']
@@ -28,6 +29,7 @@ class adventurerModel(object):
 		self.bravery = data['bravery']
 		self.race = data['race']
 		self.sex = data['sex']
+		self.price = data['price'] if data.has_key('price') else None
 
 	def serialize(self):
 		data = {}
@@ -41,6 +43,7 @@ class adventurerModel(object):
 		data['bravery'] = self.bravery
 		data['race'] = self.race
 		data['sex'] = self.sex
+		data['price'] = self.price
 		return data
 
 	@property
@@ -121,3 +124,11 @@ class adventurerModel(object):
 	@sex.setter
 	def sex(self, value):
 		self._sex = value
+
+	@property
+	def price(self):
+		return self._price
+
+	@price.setter
+	def price(self, value):
+		self._price = value

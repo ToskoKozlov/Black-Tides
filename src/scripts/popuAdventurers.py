@@ -15,7 +15,7 @@ Generates random values for attributes described avobe
 '''
 import random, sys, MySQLdb
 sys.path.append('../../Black-Tides')
-from lib.daos import DAOSql
+from lib.daos import DAOGame
 from src.models import adventurerModel
 from random import randint
 
@@ -120,8 +120,8 @@ def adjustAdventurer(adventurer_data):
 
 	return adventurer_data
 
-db = DAOSql.DAOSql(dbhost = 'localhost', dbuser = 'root', dbpass = 'root', dbname = 'black_tides')
-N = 1001
+db = DAOGame.DAOGame()
+N = 1000
 
 data = ['localhost', 'root', 'root', 'black_tides']
 conn = MySQLdb.connect(*data)
@@ -129,15 +129,22 @@ conn = MySQLdb.connect(*data)
 cursor = conn.cursor()	# create a cursor
 
 # repeat n times
-for n in xrange(1000, N):
+for n in xrange(1, N+1):
 	# create adventurer
 	#adventurer = createAdventurer()
 	
 	# insert adventurer
 	#response = db.insertAdventurer(adventurer)
 
-	randSex = random.choice(sex)
-	print randSex
-	query = "UPDATE adventurer SET sex='%s' WHERE id=%i" % (randSex, n)
+	#randSex = random.choice(sex)
+	#query = "UPDATE adventurer SET sex='%s' WHERE id=%i" % (randSex, n)
+	#cursor.execute(query)	# execute query
+	#conn.commit()	# commit writting data
+
+	adventurer = adventurerModel.adventurerModel()
+	adventurer.init(db.getAdventurer(n))
+
+	price = (adventurer.strength + adventurer.agility + adventurer.intelligence + adventurer.magicka + adventurer.bravery) * 15
+	query = "UPDATE adventurer SET price=%i WHERE id=%i" % (price, n)
 	cursor.execute(query)	# execute query
 	conn.commit()	# commit writting data
