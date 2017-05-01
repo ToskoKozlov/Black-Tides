@@ -53,17 +53,27 @@ class gameManager(object):
 		if self.db:
 			userAdventurers = self.db.getUserAdventurers(user_token)
 			adventurers = []
+			adventurersOnQuest = []
 			for userAdventurer in userAdventurers:
 				adventurer = adventurerModel.adventurerModel()
-				dbadventurer = self.db.getAdventurer(userAdventurer['adventurer_id'])
-				adventurer.init(dbadventurer)
-				adventurers.append(adventurer)
+				adventurer.init(self.db.getAdventurer(userAdventurer['adventurer_id']))
+				
+				# check if this adventurer is on a quest
+				if userAdventurer['on_quest'] > 0:
+					adventurers.append(adventurer)
+				else:
+					adventurersOnQuest.append(adventurer)
 
 			response['status'] = 200
 			response['description'] = 'OK'
-			response['data'] = []
+			response['data'] = {
+				'idle': [],
+				'on_quest':[]
+			}
 			for adventurer in adventurers:
-				response['data'].append(adventurer.serialize())
+				response['data']['idle'].append(adventurer.serialize())
+			for adventurer in adventurersOnQuest:
+				response['data']['on_quest'].append(adventurer.serialize())
 		else:
 			response['status'] = 500
 			response['description'] = 'Error: could not connect to database'
@@ -71,17 +81,40 @@ class gameManager(object):
 		return response
 
 	# asign an adventurer to a user
-	def buyAdventurer(self, user_token, adventurer_id):
+	def buyAdventurer(self, user_token, adventurer_id, gold):
 		response = {}
+		errors = False
 		if adventurer_id > 0:
 			if self.db:
-				response = self.db.insertUserAdventurer(user_token, adventurer_id)
+				if gold > 0:
+					# get player
+					player = self.db.getPlayer(user_token)
+					
+					# subtract gold from player
+					finalGold = player['gold'] - gold 
+					
+					# set new gold value
+					updated = self.db.updatePlayerGold(user_token, gold)
+				else:
+					errors = True
+					response['status'] = 400
+					response['description'] = 'Error: gold must be greater than 0'
 			else:
+				errors = True
 				response['status'] = 500
 				response['description'] = 'Error: could not connect to database'
 		else:
+			errors = True
 			response['status'] = 400
 			response['description'] = 'Error: invalid adventurer ID'
+
+		if not errors:
+			if updated:
+				response = self.db.insertUserAdventurer(user_token, adventurer_id)
+			else:
+				response['status'] = 400
+				response['description'] = 'Error: player '+ user_token +' have not enough gold'
+
 		return response
 	
 	# get a random number of quests of a certain level
@@ -138,7 +171,7 @@ class gameManager(object):
 
 					try:
 						# insert questID into user_adventurer table for each adventurer given
-						result = self.db.updateUserAdventurer(user_token, adventurer, questID)
+						result = self.db.updateUserAdventurer(user_token, adventurer.id, questID)
 					except Exception, e:
 						errors = True
 						print str(e)
@@ -200,6 +233,65 @@ class gameManager(object):
 
 		return response
 
+	# complete a quest for a player
+	def completeQuest(self, user_token, questID):
+		response = {}
+		errors = False
+		if self.db:
+			# get player_quest
+			playerQuest = self.db.getUserQuest(user_token, questID)
+			
+			if playerQuest:
+				# check success
+				success = self.checkSuccess(playerQuest['success_rate'])
+				if success:
+					player = self.db.getPlayer(user_token)	# get player information
+					quest = self.db.getQuest(questID)		# get quest information
+				
+					# add gold 
+					finalGold = player['gold'] + quest['gold']
+					updated = self.db.updatePlayerGold(user_token, finalGold)
+
+					if updated:
+						# add influence
+						finalInfluence = player['influence'] + quest['influence']
+						updated = self.db.updatePlayerInfluence(user_token, finalInfluence)
+						if not updated:
+							errors = True
+							response['status'] = 500
+							response['description'] = "Error: could not update influence reward"
+					else:
+						errors = True
+						response['status'] = 500
+						response['description'] = "Error: could not update gold reward"
+			else:
+				errors = True
+				response['status'] = 500
+				response['description'] = "Error: user "+user_token+" does not have quest "+str(questID)
+
+			if not errors:
+				# remove entry on player_quests table
+				if self.db.removePlayerQuest(user_token, questID):
+					# release adventurers on player_adventurers
+					userAdventurers = self.db.getUserAdventurers(user_token, questID)
+					for userAdventurer in userAdventurers:
+						adventurer = adventurerModel.adventurerModel()
+						self.db.updateUserAdventurer(user_token, userAdventurer['adventurer_id'], 0)
+					
+					# return success and current gold and influence
+					response['status'] = 200
+					response['description'] = "OK"
+					response['data'] = {
+						'gold': finalGold,
+						'influence': finalInfluence,
+						'success': success
+					}
+				else:
+					errors = True
+					response['status'] = 500
+					response['description'] = "Error: could not update gold reward"
+		return response
+
 	'''
 	TOOLS
 	'''
@@ -228,3 +320,12 @@ class gameManager(object):
 		successRate = float("{0:.2f}".format(100 - failure_acc))
 
 		return successRate
+
+	# check if a quest have success
+	def checkSuccess(self, successRate):
+		success = False
+		
+		if float("{0:.2f}".format(random.uniform(0,100))) <= successRate:
+			success = True
+
+		return success

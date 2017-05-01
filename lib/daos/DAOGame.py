@@ -52,7 +52,7 @@ class DAOGame(DAOSql):
 		errors = False
 
 		query = '''INSERT INTO 
-					user_adventurers (user_token, adventurer_id) 
+					player_adventurers (user_token, adventurer_id) 
 				VALUES 
 					('%s', '%s')''' % (user_token, adventurerID)
 
@@ -117,14 +117,14 @@ class DAOGame(DAOSql):
 			response['description'] = 'Error: could not insert quest'
 		return response
 	
-	# create a new entry in user_quest table
+	# create a new entry in player_quest table
 	def insertUserQuest(self, user_token, questID, finishDate, successRate):
 		response = {}
 
 		errors = False
 
 		query = '''INSERT INTO 
-					user_quest (user_token, quest_id, date_finished, success_rate) 
+					player_quest (user_token, quest_id, date_finished, success_rate) 
 				VALUES 
 					('%s', %i, '%s', %f)''' % (user_token, questID, finishDate, successRate)
 		try:
@@ -141,12 +141,26 @@ class DAOGame(DAOSql):
 			response['description'] = 'OK'
 		else:
 			response['status'] = 400
-			response['description'] = 'Error: could not insert user_quest element'
+			response['description'] = 'Error: could not insert player_quest element'
 		return response
 
 	'''
 	GET METHODS
 	'''
+	# get a player item by user_token
+	def getPlayer(self, user_token):
+		query = "SELECT * FROM `player` WHERE `user_token`='%s'" % (user_token)
+		try:
+			cursor = self.getDictCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			player = cursor.fetchone()		# get all results and keep only the first
+
+		return player
+
 	# get an adventurer by id
 	def getAdventurer(self, adventurerID):
 		query = "SELECT * FROM `adventurer` WHERE `id`= %i" % (adventurerID)
@@ -161,10 +175,13 @@ class DAOGame(DAOSql):
 
 		return adventurer
 	
-	# get an item from user_adventurers table
-	def getUserAdventurers(self, userToken):
+	# get an item from player_adventurers table
+	def getUserAdventurers(self, userToken, questID = None):
 		adventurers = []
-		query = "SELECT * FROM `user_adventurers` WHERE `user_token`= '%s'" % (userToken)
+		if questID:
+			query = "SELECT * FROM `player_adventurers` WHERE `user_token`= '%s' AND `on_quest`=%i" % (userToken, questID)
+		else:
+			query = "SELECT * FROM `player_adventurers` WHERE `user_token`= '%s'" % (userToken)
 		try:
 			cursor = self.getDictCursor(query)
 		except Exception, e:
@@ -176,10 +193,10 @@ class DAOGame(DAOSql):
 
 		return adventurers
 	
-	# get an item from user_quest table
+	# get an item from player_quest table
 	def getUserQuests(self, user_token):
 		userQuests = []
-		query = "SELECT * FROM `user_quest` WHERE `user_token`= '%s'" % (user_token)
+		query = "SELECT * FROM `player_quest` WHERE `user_token`= '%s'" % (user_token)
 		try:
 			cursor = self.getDictCursor(query)
 		except Exception, e:
@@ -190,6 +207,21 @@ class DAOGame(DAOSql):
 			userQuests = cursor.fetchall()		# get all results
 
 		return userQuests
+
+	# get a specific quest from player_quest table
+	def getUserQuest(self, user_token, questID):
+		userQuests = []
+		query = "SELECT * FROM `player_quest` WHERE `user_token`='%s' AND `quest_id`=%i" % (user_token, questID)
+		try:
+			cursor = self.getDictCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			userQuest = cursor.fetchone()		# get all results
+
+		return userQuest
 
 	# get a quest from database
 	def getQuest(self, questID):
@@ -210,8 +242,8 @@ class DAOGame(DAOSql):
 	UPDATES
 	'''
 	# add questID to user-adventurer table
-	def updateUserAdventurer(self, user_token, adventurer, questID):
-		query = "UPDATE `user_adventurers` SET on_quest=%i WHERE `user_token`='%s' AND `adventurer_id`=%i" % (questID, user_token, adventurer.id)
+	def updateUserAdventurer(self, user_token, adventurerID, questID):
+		query = "UPDATE `player_adventurers` SET on_quest=%i WHERE `user_token`='%s' AND `adventurer_id`=%i" % (questID, user_token, adventurerID)
 
 		try:
 			cursor = self.getCursor(query)
@@ -224,4 +256,55 @@ class DAOGame(DAOSql):
 
 		return cursor
 
+	# updates player gold
+	def updatePlayerGold(self, user_token, gold):
+		updated = False
+		query = "UPDATE `player` SET gold=%i WHERE `user_token`='%s'" % (gold, user_token)
 
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			self.conn.commit()	# commit writting data
+			updated = True
+
+		return updated
+
+	# updates player influence
+	def updatePlayerInfluence(self, user_token, influence):
+		updated = False
+		query = "UPDATE `player` SET influence=%i WHERE `user_token`='%s'" % (influence, user_token)
+
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			self.conn.commit()	# commit writting data
+			updated = True
+		
+		return updated
+
+	'''
+	DELETE OPERATIONS
+	'''
+	def removePlayerQuest(self, user_token, questID):
+		removed = False
+		query = "DELETE FROM `player_quest` WHERE `user_token`='%s' AND `quest_id`=%i" % (user_token, questID)
+
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			self.conn.commit()	# commit writting data
+			removed = True
+		
+		return removed
