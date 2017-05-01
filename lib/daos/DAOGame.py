@@ -176,9 +176,12 @@ class DAOGame(DAOSql):
 		return adventurer
 	
 	# get an item from player_adventurers table
-	def getUserAdventurers(self, userToken):
+	def getUserAdventurers(self, userToken, questID = None):
 		adventurers = []
-		query = "SELECT * FROM `player_adventurers` WHERE `user_token`= '%s'" % (userToken)
+		if questID:
+			query = "SELECT * FROM `player_adventurers` WHERE `user_token`= '%s' AND `on_quest`=%i" % (userToken, questID)
+		else:
+			query = "SELECT * FROM `player_adventurers` WHERE `user_token`= '%s'" % (userToken)
 		try:
 			cursor = self.getDictCursor(query)
 		except Exception, e:
@@ -205,6 +208,21 @@ class DAOGame(DAOSql):
 
 		return userQuests
 
+	# get a specific quest from player_quest table
+	def getUserQuest(self, user_token, questID):
+		userQuests = []
+		query = "SELECT * FROM `player_quest` WHERE `user_token`='%s' AND `quest_id`=%i" % (user_token, questID)
+		try:
+			cursor = self.getDictCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			userQuest = cursor.fetchone()		# get all results
+
+		return userQuest
+
 	# get a quest from database
 	def getQuest(self, questID):
 		quest = {}
@@ -224,8 +242,8 @@ class DAOGame(DAOSql):
 	UPDATES
 	'''
 	# add questID to user-adventurer table
-	def updateUserAdventurer(self, user_token, adventurer, questID):
-		query = "UPDATE `player_adventurers` SET on_quest=%i WHERE `user_token`='%s' AND `adventurer_id`=%i" % (questID, user_token, adventurer.id)
+	def updateUserAdventurer(self, user_token, adventurerID, questID):
+		query = "UPDATE `player_adventurers` SET on_quest=%i WHERE `user_token`='%s' AND `adventurer_id`=%i" % (questID, user_token, adventurerID)
 
 		try:
 			cursor = self.getCursor(query)
@@ -238,28 +256,55 @@ class DAOGame(DAOSql):
 
 		return cursor
 
-	# subtract a quantity of gold to a user
-	def subtractGold(self, user_token, gold):
-		# get current gold
-		player = self.getPlayer(user_token)
+	# updates player gold
+	def updatePlayerGold(self, user_token, gold):
+		updated = False
+		query = "UPDATE `player` SET gold=%i WHERE `user_token`='%s'" % (gold, user_token)
 
-		finalGold = player['gold'] - gold 
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
 
-		if finalGold >= 0:
-			query = "UPDATE `player` SET gold=%i WHERE `user_token`='%s'" % (finalGold, user_token)
+		if cursor:
+			self.conn.commit()	# commit writting data
+			updated = True
 
-			try:
-				cursor = self.getCursor(query)
-			except Exception, e:
-				print str(e)
-				cursor = None
+		return updated
 
-			if cursor:
-				self.conn.commit()	# commit writting data
-				subtracted = True
-		else:
-			subtracted = False
+	# updates player influence
+	def updatePlayerInfluence(self, user_token, influence):
+		updated = False
+		query = "UPDATE `player` SET influence=%i WHERE `user_token`='%s'" % (influence, user_token)
 
-		return subtracted
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
 
+		if cursor:
+			self.conn.commit()	# commit writting data
+			updated = True
+		
+		return updated
 
+	'''
+	DELETE OPERATIONS
+	'''
+	def removePlayerQuest(self, user_token, questID):
+		removed = False
+		query = "DELETE FROM `player_quest` WHERE `user_token`='%s' AND `quest_id`=%i" % (user_token, questID)
+
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			self.conn.commit()	# commit writting data
+			removed = True
+		
+		return removed
