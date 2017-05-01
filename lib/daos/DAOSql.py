@@ -237,6 +237,23 @@ class DAOSql(object):
 
 		return adventurers
 	
+	# get an item from user_quest table
+	def getUserQuests(self, user_token):
+		userQuests = []
+		query = "SELECT * FROM `user_quest` WHERE `user_token`= '%s'" % (user_token)
+		try:
+			if self.conn:
+				cursor = self.conn.cursor (MySQLdb.cursors.DictCursor) # create a cursor
+				cursor.execute(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			userQuests = cursor.fetchall()		# get all results
+
+		return userQuests
+
 	# get a quest from database
 	def getQuest(self, questID):
 		query = "SELECT * FROM `quest` WHERE `id`= %i" % (questID)

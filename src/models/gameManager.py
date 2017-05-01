@@ -167,6 +167,38 @@ class gameManager(object):
 		
 		return response
 	
+	# get all current quests for a user
+	def getUserQuests(self, user_token):
+		response = {}
+		if self.db:
+			quests = {
+				'completed': [],
+				'in_progress': []
+			}
+			now = datetime.datetime.now()
+			
+			# get all user_quests
+			userQuests = self.db.getUserQuests(user_token)
+			
+			for userQuest in userQuests:
+				quest = questModel.questModel()
+				quest.init(self.db.getQuest(userQuest['quest_id']))
+				if (userQuest['date_finished'] - now).total_seconds() <= 0:
+					# this quest is completed
+					quests['completed'].append(quest.serialize())
+
+				else:
+					quests['in_progress'].append(quest.serialize())
+
+			response['status'] = 200
+			response['description'] = 'OK'
+			response['data'] = quests
+		else:
+			response['status'] = 500
+			response['description'] = 'Error: could not connect to database'
+
+		return response
+
 	'''
 	TOOLS
 	'''

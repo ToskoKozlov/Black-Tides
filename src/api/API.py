@@ -206,7 +206,25 @@ def startQuest(user_token, questID):
 
 	return json.dumps(response)
 
+# endpoint to get all user quests
+@app.route("/user_token/<user_token>/quests", methods=['GET'])
+def getUserQuests(user_token):
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+	if re.match('[A-Fa-f0-9]{64}',user_token):
+		manager = gameManager.gameManager()
+		response = manager.getUserQuests(user_token)
+	else:
+		errors = True
+		response['status'] = 400
+		response['description'] = 'Error: user_token must be a sha256'
 
+	return json.dumps(response)
 
 
 if __name__ == "__main__":
