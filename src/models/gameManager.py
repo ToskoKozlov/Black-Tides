@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from lib.daos import DAOSql
+from lib.daos import DAOGame
 from src.models import adventurerModel
 from src.models import questModel
 import random, datetime
@@ -9,7 +9,7 @@ import random, datetime
 class gameManager(object):
 	# class constructor with arguments
 	def __init__(self):
-		self.db = DAOSql.DAOSql(dbhost = 'localhost', dbuser = 'root', dbpass = 'root', dbname = 'black_tides')
+		self.db = DAOGame.DAOGame()
 
 	# get a random number of adventurers from database
 	def getAdventurers(self, size = 1):
@@ -100,8 +100,9 @@ class gameManager(object):
 			for questID in questsIDs:
 				quest = questModel.questModel()
 				dbquest = self.db.getQuest(questID)
-				quest.init(dbquest)
-				quests.append(quest)
+				if dbquest:
+					quest.init(dbquest)
+					quests.append(quest)
 			
 			if len(quests) > 0:
 				response['status'] = 200
