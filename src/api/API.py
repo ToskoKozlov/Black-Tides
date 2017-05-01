@@ -130,12 +130,28 @@ def buyAdventurer(user_token, adventurer_id):
 	}
 	errors = False
 	if re.match('[A-Fa-f0-9]{64}',user_token):
-		manager = gameManager.gameManager()
-		response = manager.buyAdventurer(user_token, adventurer_id)
+		try:
+			data = request.get_json(cache=False)	# read request data
+		except:
+			errors = True
+			response['status'] = 404
+			response['description'] = 'Error: invalid parameters'
 	else:
 		errors = True
 		response['status'] = 400
 		response['description'] = 'Error: user_token must be a sha256'
+
+	if not errors:
+		# read gold parameter
+		try:
+			gold = data['gold']
+		except:
+			errors = True
+			response['status'] = 404
+			response['description'] = 'Error: gold parameter not found'
+	if not errors:
+		manager = gameManager.gameManager()
+		response = manager.buyAdventurer(user_token, adventurer_id, gold)
 
 	return json.dumps(response)
 

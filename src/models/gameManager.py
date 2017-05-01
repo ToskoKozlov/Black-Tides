@@ -53,17 +53,27 @@ class gameManager(object):
 		if self.db:
 			userAdventurers = self.db.getUserAdventurers(user_token)
 			adventurers = []
+			adventurersOnQuest = []
 			for userAdventurer in userAdventurers:
 				adventurer = adventurerModel.adventurerModel()
-				dbadventurer = self.db.getAdventurer(userAdventurer['adventurer_id'])
-				adventurer.init(dbadventurer)
-				adventurers.append(adventurer)
+				adventurer.init(self.db.getAdventurer(userAdventurer['adventurer_id']))
+				
+				# check if this adventurer is on a quest
+				if userAdventurer['on_quest'] > 0:
+					adventurers.append(adventurer)
+				else:
+					adventurersOnQuest.append(adventurer)
 
 			response['status'] = 200
 			response['description'] = 'OK'
-			response['data'] = []
+			response['data'] = {
+				'idle': [],
+				'on_quest':[]
+			}
 			for adventurer in adventurers:
-				response['data'].append(adventurer.serialize())
+				response['data']['idle'].append(adventurer.serialize())
+			for adventurer in adventurersOnQuest:
+				response['data']['on_quest'].append(adventurer.serialize())
 		else:
 			response['status'] = 500
 			response['description'] = 'Error: could not connect to database'
@@ -71,17 +81,34 @@ class gameManager(object):
 		return response
 
 	# asign an adventurer to a user
-	def buyAdventurer(self, user_token, adventurer_id):
+	def buyAdventurer(self, user_token, adventurer_id, gold):
 		response = {}
+		errors = False
 		if adventurer_id > 0:
 			if self.db:
-				response = self.db.insertUserAdventurer(user_token, adventurer_id)
+				if gold > 0:
+					# subtract gold from player
+					subtracted = self.db.subtractGold(user_token, gold)
+				else:
+					errors = True
+					response['status'] = 400
+					response['description'] = 'Error: gold must be greater than 0'
 			else:
+				errors = True
 				response['status'] = 500
 				response['description'] = 'Error: could not connect to database'
 		else:
+			errors = True
 			response['status'] = 400
 			response['description'] = 'Error: invalid adventurer ID'
+
+		if not errors:
+			if subtracted:
+				response = self.db.insertUserAdventurer(user_token, adventurer_id)
+			else:
+				response['status'] = 400
+				response['description'] = 'Error: player '+ user_token +' have not enough gold'
+
 		return response
 	
 	# get a random number of quests of a certain level

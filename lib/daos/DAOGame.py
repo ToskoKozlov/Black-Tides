@@ -52,7 +52,7 @@ class DAOGame(DAOSql):
 		errors = False
 
 		query = '''INSERT INTO 
-					user_adventurers (user_token, adventurer_id) 
+					player_adventurers (user_token, adventurer_id) 
 				VALUES 
 					('%s', '%s')''' % (user_token, adventurerID)
 
@@ -117,14 +117,14 @@ class DAOGame(DAOSql):
 			response['description'] = 'Error: could not insert quest'
 		return response
 	
-	# create a new entry in user_quest table
+	# create a new entry in player_quest table
 	def insertUserQuest(self, user_token, questID, finishDate, successRate):
 		response = {}
 
 		errors = False
 
 		query = '''INSERT INTO 
-					user_quest (user_token, quest_id, date_finished, success_rate) 
+					player_quest (user_token, quest_id, date_finished, success_rate) 
 				VALUES 
 					('%s', %i, '%s', %f)''' % (user_token, questID, finishDate, successRate)
 		try:
@@ -141,12 +141,26 @@ class DAOGame(DAOSql):
 			response['description'] = 'OK'
 		else:
 			response['status'] = 400
-			response['description'] = 'Error: could not insert user_quest element'
+			response['description'] = 'Error: could not insert player_quest element'
 		return response
 
 	'''
 	GET METHODS
 	'''
+	# get a player item by user_token
+	def getPlayer(self, user_token):
+		query = "SELECT * FROM `player` WHERE `user_token`='%s'" % (user_token)
+		try:
+			cursor = self.getDictCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			player = cursor.fetchone()		# get all results and keep only the first
+
+		return player
+
 	# get an adventurer by id
 	def getAdventurer(self, adventurerID):
 		query = "SELECT * FROM `adventurer` WHERE `id`= %i" % (adventurerID)
@@ -161,10 +175,10 @@ class DAOGame(DAOSql):
 
 		return adventurer
 	
-	# get an item from user_adventurers table
+	# get an item from player_adventurers table
 	def getUserAdventurers(self, userToken):
 		adventurers = []
-		query = "SELECT * FROM `user_adventurers` WHERE `user_token`= '%s'" % (userToken)
+		query = "SELECT * FROM `player_adventurers` WHERE `user_token`= '%s'" % (userToken)
 		try:
 			cursor = self.getDictCursor(query)
 		except Exception, e:
@@ -176,10 +190,10 @@ class DAOGame(DAOSql):
 
 		return adventurers
 	
-	# get an item from user_quest table
+	# get an item from player_quest table
 	def getUserQuests(self, user_token):
 		userQuests = []
-		query = "SELECT * FROM `user_quest` WHERE `user_token`= '%s'" % (user_token)
+		query = "SELECT * FROM `player_quest` WHERE `user_token`= '%s'" % (user_token)
 		try:
 			cursor = self.getDictCursor(query)
 		except Exception, e:
@@ -211,7 +225,7 @@ class DAOGame(DAOSql):
 	'''
 	# add questID to user-adventurer table
 	def updateUserAdventurer(self, user_token, adventurer, questID):
-		query = "UPDATE `user_adventurers` SET on_quest=%i WHERE `user_token`='%s' AND `adventurer_id`=%i" % (questID, user_token, adventurer.id)
+		query = "UPDATE `player_adventurers` SET on_quest=%i WHERE `user_token`='%s' AND `adventurer_id`=%i" % (questID, user_token, adventurer.id)
 
 		try:
 			cursor = self.getCursor(query)
@@ -223,5 +237,29 @@ class DAOGame(DAOSql):
 			self.conn.commit()	# commit writting data
 
 		return cursor
+
+	# subtract a quantity of gold to a user
+	def subtractGold(self, user_token, gold):
+		# get current gold
+		player = self.getPlayer(user_token)
+
+		finalGold = player['gold'] - gold 
+
+		if finalGold >= 0:
+			query = "UPDATE `player` SET gold=%i WHERE `user_token`='%s'" % (finalGold, user_token)
+
+			try:
+				cursor = self.getCursor(query)
+			except Exception, e:
+				print str(e)
+				cursor = None
+
+			if cursor:
+				self.conn.commit()	# commit writting data
+				subtracted = True
+		else:
+			subtracted = False
+
+		return subtracted
 
 
