@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from lib.daos.DAOSql import DAOSql
-import ConfigParser
+import ConfigParser, time
 
 class DAOLogin(DAOSql):
     # class constructor with arguments

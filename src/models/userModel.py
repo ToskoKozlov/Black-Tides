@@ -16,7 +16,7 @@ class userModel(object):
 		self._enabled = 0
 
 	def init(self, data):
-		self.username = data['user_name'] if data.has_key('user_name') else ''
+		self.username = data['username'] if data.has_key('username') else ''
 		self.email = data['email'] if data.has_key('email') else ''
 		self.password = data['password']
 		self.user_token = data['user_token'] if data.has_key('user_token') else ''
@@ -24,7 +24,7 @@ class userModel(object):
 	# convert object to printable dictionary
 	def serialize(self):
 		data = {}
-		data['user_name'] = self.username
+		data['username'] = self.username
 		data['email'] = self.email
 		data['password'] = self.password
 		data['user_token'] = self.user_token
