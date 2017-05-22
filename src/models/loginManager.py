@@ -14,13 +14,20 @@ class loginManager(object):
 
 	# create a new user in database
 	def createUser(self, data):
+	
+		response = {}
+		
 		if self.dbLogin:
 			user = userModel.userModel()
 			user.init(data)
-			response = self.dbLogin.insertUser(user)
+			if user.username and user.email:
+				response = self.dbLogin.insertUser(user)
+			else:
+				response['status'] = 400
+				response['description'] = "Error: user must have username and email defined"
 		else:
 			response['status'] = 500
-			response['description'] = "Error: could not connect to database. "
+			response['description'] = "Error: could not connect to database"
 
 		if response['status'] == 200:  # there is no errors
 			# save new entry for player
@@ -44,6 +51,6 @@ class loginManager(object):
 				response['description'] = 'Error: user ' + user.username + ' not found'
 		else:
 			response['status'] = 500
-			response['description'] = "Error: could not connect to database. "
+			response['description'] = "Error: could not connect to database"
 
 		return response
