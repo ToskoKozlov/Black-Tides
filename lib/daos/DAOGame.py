@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from lib.daos.DAOSql import DAOSql
-import ConfigParser
+import ConfigParser, random
 
 class DAOGame(DAOSql):
     # class constructor with arguments
@@ -14,7 +14,41 @@ class DAOGame(DAOSql):
 		self.dbhost = config.get('black_tides', 'host')
 		self.dbname = config.get('black_tides', 'dbname')
 		
+		self.initialGold = 500
+		self.initialInfluence = 0
+		self.playersLimit = 5999
+		
 		super(DAOGame, self).__init__(dbhost = self.dbhost, dbuser = self.dbuser, dbpass = self.dbpass, dbname = self.dbname)
+
+	# insert a new player into de game
+	def insertPlayer(self, token):
+		response = {}
+
+		errors = False
+
+		location = random.randint(0000, self.playersLimit)
+
+		query = '''INSERT INTO 
+					player (user_token, location, gold, influence) 
+				VALUES 
+					('%s', '%s', '%s', '%s')''' % (token, location, self.initialGold, self.initialInfluence)
+		try:
+			cursor = self.getCursor(query)
+		except self.conn.IntegrityError:
+			errors = True
+			cursor = None
+		
+		if cursor:
+			self.conn.commit()	# commit writting data
+			cursor.close()		# close cursor 
+
+		if not errors:
+			response['status'] = 200
+			response['description'] = 'OK'
+		else:
+			response['status'] = 400
+			response['description'] = 'Error: could not insert player'
+		return response
 
 	# insert a new adventurer into adventurers table
 	def insertAdventurer(self, adventurer):
