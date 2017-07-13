@@ -33,6 +33,7 @@ class loginManager(object):
 			# save new entry for player
 			if self.dbGame:
 				response = self.dbGame.insertPlayer(user.user_token)
+				response['token'] = user.user_token
 		return response
 
 	# check if a user exists in database

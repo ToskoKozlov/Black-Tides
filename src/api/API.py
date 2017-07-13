@@ -11,7 +11,7 @@ from src.models import gameManager
 app = Flask(__name__)
 
 # endpoint for the creation of a new user
-@app.route("/user", methods=['POST'])
+@app.route("/newuser", methods=['POST'])
 def create_user():
 	# response template
 	response = {
