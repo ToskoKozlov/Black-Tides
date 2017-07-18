@@ -11,6 +11,7 @@ class userModel(object):
 		self._username = ''
 		self._email = ''
 		self._password = ''
+		self._salt = ''
 		self._creation_date = datetime.time(0,0)
 		self._user_token = ''
 		self._enabled = 0
@@ -19,6 +20,7 @@ class userModel(object):
 		self.username = data['username'] if data.has_key('username') else ''
 		self.email = data['email'] if data.has_key('email') else ''
 		self.password = data['password']
+		self.salt = data['salt']
 		self.user_token = data['user_token'] if data.has_key('user_token') else ''
 
 	# convert object to printable dictionary
@@ -27,6 +29,7 @@ class userModel(object):
 		data['username'] = self.username
 		data['email'] = self.email
 		data['password'] = self.password
+		data['salt'] = self.salt
 		data['user_token'] = self.user_token
 		
 		return data
@@ -46,6 +49,14 @@ class userModel(object):
 	@password.setter
 	def password(self, value):
 		self._password = value
+
+	@property
+	def salt(self):
+		return self._salt
+
+	@salt.setter
+	def salt(self, value):
+		self._salt = value
 
 	@property
 	def email(self):
