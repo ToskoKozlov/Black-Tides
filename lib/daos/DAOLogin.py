@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from lib.daos.DAOSql import DAOSql
-import ConfigParser
+import ConfigParser, time
 
 class DAOLogin(DAOSql):
     # class constructor with arguments
@@ -28,7 +28,7 @@ class DAOLogin(DAOSql):
 
 		creationDate = time.strftime('%Y-%m-%d %H:%M:%S')
 
-		query = "INSERT INTO user (username, email, password, creation_date, user_token, enabled) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (user.username, user.email, user.password, creationDate, user.user_token, 1)
+		query = "INSERT INTO user (username, email, password, salt, creation_date, user_token, enabled) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (user.username, user.email, user.password, user.salt, creationDate, user.user_token, 1)
 
 		try:
 			cursor = self.getCursor(query)
