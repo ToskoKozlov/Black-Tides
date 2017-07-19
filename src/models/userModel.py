@@ -20,7 +20,7 @@ class userModel(object):
 		self.username = data['username'] if data.has_key('username') else ''
 		self.email = data['email'] if data.has_key('email') else ''
 		self.password = data['password']
-		self.salt = data['salt']
+		self.salt = data['salt'] if data.has_key('salt') else ''
 		self.user_token = data['user_token'] if data.has_key('user_token') else ''
 
 	# convert object to printable dictionary
