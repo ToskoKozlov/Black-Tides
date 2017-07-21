@@ -4,6 +4,7 @@
 from lib.daos import DAOLogin
 from lib.daos import DAOGame
 from src.models import userModel
+import bcrypt
 
 class loginManager(object):
 
@@ -21,6 +22,7 @@ class loginManager(object):
 			user = userModel.userModel()
 			user.init(data)
 			if user.username and user.email:
+				user.password = user.encryptPassword(user.password)
 				response = self.dbLogin.insertUser(user)
 			else:
 				response['status'] = 400
@@ -42,9 +44,10 @@ class loginManager(object):
 		if self.dbLogin:
 			user = userModel.userModel()
 			user.init(data)
-			user_token = self.dbLogin.getUser(user)
-			if user_token:
-				response['user_token'] = user_token
+			result = self.dbLogin.getUser(user)
+
+			if self.passWordCorrect(user.password, result['password']):
+				response['user_token'] = result['user_token']
 				response['status'] = 200
 				response['description'] = 'OK'
 			else:
@@ -55,3 +58,7 @@ class loginManager(object):
 			response['description'] = "Error: could not connect to database"
 
 		return response
+
+	# check if clear password and hashed password are the same
+	def passWordCorrect(self, clearPass, hashedPass):
+		return bcrypt.hashpw(clearPass.encode('utf-8'), hashedPass) == hashedPass
