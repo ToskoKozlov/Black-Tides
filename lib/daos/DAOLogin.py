@@ -28,7 +28,7 @@ class DAOLogin(DAOSql):
 
 		creationDate = time.strftime('%Y-%m-%d %H:%M:%S')
 
-		query = "INSERT INTO user (username, email, password, salt, creation_date, user_token, enabled) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (user.username, user.email, user.password, user.salt, creationDate, user.user_token, 1)
+		query = "INSERT INTO user (username, email, password, creation_date, user_token, enabled) VALUES ('%s','%s','%s','%s','%s','%s')" % (user.username, user.email, user.password, creationDate, user.user_token, 1)
 
 		try:
 			cursor = self.getCursor(query)
@@ -53,21 +53,21 @@ class DAOLogin(DAOSql):
 	# get a user from database
 	def getUser(self, user):
 		user_token = ''
-		query = "SELECT user_token FROM `user`"
+		query = "SELECT user_token, password FROM `user`"
 
 		if user.email:
-			query = query + " WHERE `email`= '%s' AND `password`= '%s'" % (user.email, user.password)
+			query = query + " WHERE `email`= '%s'" % (user.email)
 		else:
-			query = query + " WHERE `username`= '%s' AND `password`= '%s'" % (user.username, user.password)
+			query = query + " WHERE `username`= '%s'" % (user.username)
 
 		try:
-			cursor = self.getCursor(query)
+			cursor = self.getDictCursor(query)
 		except Exception, e:
 			print str(e)
 			cursor = None
 
 		if cursor:
-			user_token = cursor.fetchone()	# get all results and keep only the first
+			response = cursor.fetchone()	# get all results and keep only the first
 			cursor.close()						# close cursor 
 
-		return user_token
+		return response
