@@ -11,6 +11,17 @@ class gameManager(object):
 	def __init__(self):
 		self.db = DAOGame.DAOGame()
 
+	# get gold, influence and location of current user
+	def getUserInfo(self, user_token):
+		response = {}
+
+		if self.db:
+			response['info'] = self.db.getPlayer(user_token)
+		else:
+			response['status'] = 500
+			response['description'] = "Error: could not connect to database. "
+		return response
+
 	# get a random number of adventurers from database
 	def getAdventurers(self, size = 1):
 		
