@@ -129,7 +129,7 @@ class gameManager(object):
 		return response
 	
 	# get a random number of quests of a certain level
-	def getQuests(self, size = 1):
+	def getQuests(self, size = 1, level = 1):
 		response = {}
 		
 		if self.db:

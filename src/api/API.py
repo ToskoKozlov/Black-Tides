@@ -189,8 +189,11 @@ def getQuests():
 	# get size parameter
 	size = int(request.args.get('size')) if request.args.get('size') else 1
 
+	# get level parameter
+	level = int(request.args.get('level')) if request.args.get('level') else 1
+
 	manager = gameManager.gameManager()
-	response = manager.getQuests(size)
+	response = manager.getQuests(size, level)
 
 	if errors or response['status'] != 200:
 		response['status'] = response['status']
