@@ -46,10 +46,14 @@ class loginManager(object):
 			user.init(data)
 			result = self.dbLogin.getUser(user)
 
-			if self.passWordCorrect(user.password, result['password']):
-				response['user_token'] = result['user_token']
-				response['status'] = 200
-				response['description'] = 'OK'
+			if result:
+				if self.passWordCorrect(user.password, result['password']):
+					response['user_token'] = result['user_token']
+					response['status'] = 200
+					response['description'] = 'OK'
+				else:
+					response['status'] = 401
+					response['description'] = 'Error: Wrong password'
 			else:
 				response['status'] = 404
 				response['description'] = 'Error: user ' + user.username + ' not found'
