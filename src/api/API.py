@@ -99,6 +99,26 @@ def getAdventurers():
 
 	return json.dumps(response)
 
+# get all information for a player
+@app.route("/user_token/<user_token>", methods=['GET'])
+def getUserInfo(user_token):
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+	errors = False
+	if re.match('[A-Fa-f0-9]{64}',user_token):
+		manager = gameManager.gameManager()
+		response = manager.getUserInfo(user_token)
+	else:
+		errors = True
+		response['status'] = 400
+		response['description'] = 'Error: user_token must be a sha256'
+
+	return json.dumps(response)
+
 # get all adventurers for a player
 @app.route("/user_token/<user_token>/adventurers", methods=['GET'])
 def getUserAdventurers(user_token):
@@ -169,8 +189,11 @@ def getQuests():
 	# get size parameter
 	size = int(request.args.get('size')) if request.args.get('size') else 1
 
+	# get level parameter
+	level = int(request.args.get('level')) if request.args.get('level') else 1
+
 	manager = gameManager.gameManager()
-	response = manager.getQuests(size)
+	response = manager.getQuests(size, level)
 
 	if errors or response['status'] != 200:
 		response['status'] = response['status']
