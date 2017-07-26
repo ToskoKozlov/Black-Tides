@@ -140,7 +140,7 @@ def getUserAdventurers(user_token):
 	return json.dumps(response)
 
 # asign an adventurer to a player
-@app.route("/user_token/<user_token>/adventurers/<int:adventurer_id>", methods=['POST'])
+@app.route("/user_token/<user_token>/adventurers/<int:adventurer_id>", methods=['GET'])
 def buyAdventurer(user_token, adventurer_id):
 	# response template
 	response = {
@@ -149,29 +149,14 @@ def buyAdventurer(user_token, adventurer_id):
 		"data": {}
 	}
 	errors = False
-	if re.match('[A-Fa-f0-9]{64}',user_token):
-		try:
-			data = request.get_json(cache=False)	# read request data
-		except:
-			errors = True
-			response['status'] = 404
-			response['description'] = 'Error: invalid parameters'
-	else:
+	if not re.match('[A-Fa-f0-9]{64}',user_token):
 		errors = True
 		response['status'] = 400
 		response['description'] = 'Error: user_token must be a sha256'
 
 	if not errors:
-		# read gold parameter
-		try:
-			gold = data['gold']
-		except:
-			errors = True
-			response['status'] = 404
-			response['description'] = 'Error: gold parameter not found'
-	if not errors:
 		manager = gameManager.gameManager()
-		response = manager.buyAdventurer(user_token, adventurer_id, gold)
+		response = manager.buyAdventurer(user_token, adventurer_id)
 
 	return json.dumps(response)
 

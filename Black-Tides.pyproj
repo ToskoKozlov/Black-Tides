@@ -20,9 +20,17 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="lib\daos\DAOGame.py" />
+    <Compile Include="lib\daos\DAOLogin.py" />
+    <Compile Include="lib\daos\DAOSql.py" />
+    <Compile Include="lib\daos\__init__.py" />
+    <Compile Include="lib\__init__.py" />
     <Compile Include="src\api\API.py" />
     <Compile Include="src\api\__init__.py" />
+    <Compile Include="src\models\adventurerModel.py" />
+    <Compile Include="src\models\gameManager.py" />
     <Compile Include="src\models\loginManager.py" />
+    <Compile Include="src\models\questModel.py" />
     <Compile Include="src\models\userModel.py" />
     <Compile Include="src\models\__init__.py" />
     <Compile Include="src\__init__.py" />
@@ -31,10 +39,24 @@
   <ItemGroup>
     <Content Include="Black-Tides\Black-Tides\PythonTools.html" />
     <Content Include="Black-Tides\Black-Tides\vslogo.png" />
+    <Content Include="lib\daos\DAOGame.pyc" />
+    <Content Include="lib\daos\DAOLogin.pyc" />
+    <Content Include="lib\daos\DAOSql.pyc" />
+    <Content Include="lib\daos\__init__.pyc" />
+    <Content Include="lib\__init__.pyc" />
+    <Content Include="src\models\adventurerModel.pyc" />
+    <Content Include="src\models\gameManager.pyc" />
+    <Content Include="src\models\loginManager.pyc" />
+    <Content Include="src\models\questModel.pyc" />
+    <Content Include="src\models\userModel.pyc" />
+    <Content Include="src\models\__init__.pyc" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Black-Tides\" />
     <Folder Include="Black-Tides\Black-Tides" />
+    <Folder Include="lib\" />
+    <Folder Include="lib\daos\" />
+    <Folder Include="lib\common\" />
     <Folder Include="src" />
     <Folder Include="src\api" />
     <Folder Include="src\models" />
