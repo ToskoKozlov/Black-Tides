@@ -226,6 +226,21 @@ class DAOGame(DAOSql):
 			adventurers = cursor.fetchall()		# get all results
 
 		return adventurers
+
+	# get one adventurer from a player
+	def getUserAdventurer(self, user_token, adventurerID):
+		adventurer = {}
+		query = "SELECT * FROM `player_adventurers` WHERE `user_token`= '%s' AND `adventurer_id`= '%s'" % (user_token, adventurerID)
+		try:
+			cursor = self.getDictCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			adventurer = cursor.fetchall()		# get all results
+
+		return adventurer
 	
 	# get an item from player_quest table
 	def getUserQuests(self, user_token):

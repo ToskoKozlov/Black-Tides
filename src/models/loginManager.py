@@ -4,7 +4,7 @@
 from lib.daos import DAOLogin
 from lib.daos import DAOGame
 from src.models import userModel
-import bcrypt
+import bcrypt, random
 
 class loginManager(object):
 
@@ -15,9 +15,8 @@ class loginManager(object):
 
 	# create a new user in database
 	def createUser(self, data):
-	
 		response = {}
-		
+		response['data'] = {}
 		if self.dbLogin:
 			user = userModel.userModel()
 			user.init(data)
@@ -35,12 +34,23 @@ class loginManager(object):
 			# save new entry for player
 			if self.dbGame:
 				response = self.dbGame.insertPlayer(user.user_token)
-				response['token'] = user.user_token
+				response['data'] = {"user_token": user.user_token}
+
+				# get last id to know the limit of the random id
+				idLimit = self.dbGame.getLastID('adventurer')
+			
+				# generate random ids
+				adventurerIDs = self.generateRandomIDs(3, idLimit)
+
+				for adventurerID in adventurerIDs:
+					self.dbGame.insertUserAdventurer(user.user_token, adventurerID)
+
 		return response
 
 	# check if a user exists in database
 	def loginUser(self, data):
 		response = {}
+		response['data'] = {}
 		if self.dbLogin:
 			user = userModel.userModel()
 			user.init(data)
@@ -48,7 +58,7 @@ class loginManager(object):
 
 			if result:
 				if self.passWordCorrect(user.password, result['password']):
-					response['user_token'] = result['user_token']
+					response['data']['user_token'] = result['user_token']
 					response['status'] = 200
 					response['description'] = 'OK'
 				else:
@@ -60,9 +70,13 @@ class loginManager(object):
 		else:
 			response['status'] = 500
 			response['description'] = "Error: could not connect to database"
-
 		return response
 
 	# check if clear password and hashed password are the same
 	def passWordCorrect(self, clearPass, hashedPass):
 		return bcrypt.hashpw(clearPass.encode('utf-8'), hashedPass) == hashedPass
+
+	# returns a list of random integers with range [0-idLimit]
+	def generateRandomIDs(self, size, idLimit):
+		randomList = [random.randint(1, idLimit) for r in xrange(size)]
+		return randomList
