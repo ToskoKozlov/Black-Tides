@@ -80,16 +80,15 @@ class DAOGame(DAOSql):
 		return response
 
 	# add an adventurer to a user
-	def insertUserAdventurer(self, user_token, adventurerID):
+	def insertUserAdventurer(self, user_token, adventurerID, name):
 		response = {}
 
 		errors = False
 
 		query = '''INSERT INTO 
-					player_adventurers (user_token, adventurer_id) 
+					player_adventurers (user_token, adventurer_id, name) 
 				VALUES 
-					('%s', '%s')''' % (user_token, adventurerID)
-
+					('%s', '%s', "%s")''' % (user_token, adventurerID, name)
 		try:
 			cursor = self.getCursor(query)
 		except self.conn.IntegrityError:
@@ -286,6 +285,23 @@ class DAOGame(DAOSql):
 			quest = cursor.fetchone()		# get all results and keep only the first
 
 		return quest
+
+	# get name from database
+	def getName(self, sex, id):
+		name = ""
+		tableName = sex + "_adventurer_names"
+		query = "SELECT name FROM `%s` WHERE `id`= %i LIMIT 1" % (tableName, id)
+
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			name = cursor.fetchone()		# get all results and keep only the first
+
+		return name[0]
 
 	'''
 	UPDATES

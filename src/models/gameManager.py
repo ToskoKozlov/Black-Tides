@@ -25,7 +25,7 @@ class gameManager(object):
 		return response
 
 	# get a random number of adventurers from database
-	def getAdventurers(self, size = 1):
+	def getAdventurers(self, size = 1, returnObj = False):
 		
 		response = {}
 		
@@ -40,8 +40,15 @@ class gameManager(object):
 			for adventurerID in adventurerIDs:
 				adventurer = adventurerModel.adventurerModel()
 				dbadventurer = self.db.getAdventurer(adventurerID)
+
 				adventurer.init(dbadventurer)
+
+				# generate random name
+				adventurer.name = self.generateName(adventurer.sex)
 				adventurers.append(adventurer)
+
+			if returnObj:
+				return adventurers
 
 			if len(adventurers) > 0:
 				response['status'] = 200
@@ -80,6 +87,9 @@ class gameManager(object):
 				else:
 					adventurers.append(adventurer)
 
+				# assign name
+				adventurer.name = userAdventurer['name']
+
 			response['status'] = 200
 			response['description'] = 'OK'
 			response['data'] = {
@@ -97,11 +107,12 @@ class gameManager(object):
 		return response
 
 	# buy an adventurer to a user
-	def buyAdventurer(self, user_token, adventurer_id):
+	def buyAdventurer(self, user_token, adventurer_id, name):
 		response = {}
 		errors = False
-		if adventurer_id > 0:
-			if self.db:
+
+		if adventurer_id > 0 and not errors:
+			if self.db and name:
 				# get player
 				player = self.db.getPlayer(user_token)
 
@@ -138,7 +149,7 @@ class gameManager(object):
 
 		if not errors:
 			if updated:
-				response = self.db.insertUserAdventurer(user_token, adventurer_id)
+				response = self.db.insertUserAdventurer(user_token, adventurer_id, name)
 			else:
 				response['status'] = 400
 				response['description'] = 'Error: player '+ user_token +' have not enough gold'
@@ -361,3 +372,12 @@ class gameManager(object):
 			success = True
 
 		return success
+
+	# get a random name depending on sex
+	def generateName(self, sex):
+		idLimit = self.db.getLastID(sex+'_adventurer_names')
+		id = self.generateRandomIDs(1, idLimit)[0]
+
+		name = self.db.getName(sex, id)
+
+		return name
