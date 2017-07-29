@@ -3,7 +3,7 @@
 
 from lib.daos import DAOLogin
 from lib.daos import DAOGame
-from src.models import userModel
+from src.models import userModel, gameManager
 import bcrypt, random
 
 class loginManager(object):
@@ -36,14 +36,12 @@ class loginManager(object):
 				response = self.dbGame.insertPlayer(user.user_token)
 				response['data'] = {"user_token": user.user_token}
 
-				# get last id to know the limit of the random id
-				idLimit = self.dbGame.getLastID('adventurer')
-			
-				# generate random ids
-				adventurerIDs = self.generateRandomIDs(3, idLimit)
+				# generate three random initial adventurers
+				gManager = gameManager.gameManager();
+				adventurers = gManager.getAdventurers(3, True)
 
-				for adventurerID in adventurerIDs:
-					self.dbGame.insertUserAdventurer(user.user_token, adventurerID)
+				for adventurer in adventurers:
+					self.dbGame.insertUserAdventurer(user.user_token, adventurer.id, adventurer.name)
 
 		return response
 

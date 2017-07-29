@@ -140,7 +140,7 @@ def getUserAdventurers(user_token):
 	return json.dumps(response)
 
 # asign an adventurer to a player
-@app.route("/user_token/<user_token>/adventurers/<int:adventurer_id>", methods=['GET'])
+@app.route("/user_token/<user_token>/adventurers/<int:adventurer_id>", methods=['POST'])
 def buyAdventurer(user_token, adventurer_id):
 	# response template
 	response = {
@@ -155,8 +155,12 @@ def buyAdventurer(user_token, adventurer_id):
 		response['description'] = 'Error: user_token must be a sha256'
 
 	if not errors:
+		data = request.get_json(cache=False)
+		name = data['name'] if data.has_key('name') else None
+
+	if not errors:
 		manager = gameManager.gameManager()
-		response = manager.buyAdventurer(user_token, adventurer_id)
+		response = manager.buyAdventurer(user_token, adventurer_id, name)
 
 	return json.dumps(response)
 
