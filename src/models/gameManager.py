@@ -53,9 +53,9 @@ class gameManager(object):
 			if len(adventurers) > 0:
 				response['status'] = 200
 				response['description'] = 'OK'
-				response['data'] = {"adventurers" : []}
+				response['data'] = []
 				for adventurer in adventurers:
-					response['data']['adventurers'].append(adventurer.serialize())
+					response['data'].append(adventurer.serialize())
 
 			else:
 				response['status'] = 500
