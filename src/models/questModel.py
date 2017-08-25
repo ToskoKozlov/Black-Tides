@@ -20,6 +20,7 @@ class questModel(object):
 		self._power = None
 		self._quest_time = None
 		self._finished_date = None
+		self._success_rate = None
 
 	# class constructor with arguments
 	def init(self, data):
@@ -37,6 +38,7 @@ class questModel(object):
 		self.power = data['power']
 		self.quest_time = data['quest_time']
 		self.finished_date = data.get('finished_date', 0)
+		self.success_rate = data.get('success_rate', 0)
 
 	# convert object to printable dictionary
 	def serialize(self):
@@ -55,6 +57,7 @@ class questModel(object):
 		data['power'] = self.power
 		data['quest_time'] = self.quest_time
 		data['finished_date'] = self.finished_date
+		data['success_rate'] = self.success_rate
 		return data
 
 	@property
@@ -168,3 +171,11 @@ class questModel(object):
 	@finished_time.setter
 	def finished_time(self, value):
 		self._finished_time = value
+
+	@property
+	def success_rate(self):
+		return self._success_rate
+
+	@success_rate.setter
+	def success_rate(self, value):
+		self._success_rate = value
