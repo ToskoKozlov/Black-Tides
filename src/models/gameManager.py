@@ -182,9 +182,9 @@ class gameManager(object):
 			if len(quests) > 0:
 				response['status'] = 200
 				response['description'] = 'OK'
-				response['data'] = []
+				response['data'] = {"quests": []}
 				for quest in quests:
-					response['data'].append(quest.serialize())
+					response['data']['quests'].append(quest.serialize())
 
 			else:
 				response['status'] = 500
