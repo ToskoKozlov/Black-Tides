@@ -259,6 +259,7 @@ class gameManager(object):
 			for userQuest in userQuests:
 				quest = questModel.questModel()
 				quest.init(self.db.getQuest(userQuest['quest_id']))
+				quest.success_rate = userQuest['success_rate']
 				if (userQuest['date_finished'] - now).total_seconds() <= 0:
 					# this quest is completed
 					quests['completed'].append(quest.serialize())
