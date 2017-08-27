@@ -80,16 +80,15 @@ class DAOGame(DAOSql):
 		return response
 
 	# add an adventurer to a user
-	def insertUserAdventurer(self, user_token, adventurerID):
+	def insertUserAdventurer(self, user_token, adventurerID, name):
 		response = {}
 
 		errors = False
 
 		query = '''INSERT INTO 
-					player_adventurers (user_token, adventurer_id) 
+					player_adventurers (user_token, adventurer_id, name) 
 				VALUES 
-					('%s', '%s')''' % (user_token, adventurerID)
-
+					('%s', '%s', "%s")''' % (user_token, adventurerID, name)
 		try:
 			cursor = self.getCursor(query)
 		except self.conn.IntegrityError:
@@ -226,6 +225,21 @@ class DAOGame(DAOSql):
 			adventurers = cursor.fetchall()		# get all results
 
 		return adventurers
+
+	# get one adventurer from a player
+	def getUserAdventurer(self, user_token, adventurerID):
+		adventurer = {}
+		query = "SELECT * FROM `player_adventurers` WHERE `user_token`= '%s' AND `adventurer_id`= '%s'" % (user_token, adventurerID)
+		try:
+			cursor = self.getDictCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			adventurer = cursor.fetchall()		# get all results
+
+		return adventurer
 	
 	# get an item from player_quest table
 	def getUserQuests(self, user_token):
@@ -271,6 +285,38 @@ class DAOGame(DAOSql):
 			quest = cursor.fetchone()		# get all results and keep only the first
 
 		return quest
+
+	# get name from database
+	def getName(self, sex, id):
+		name = ""
+		tableName = sex + "_adventurer_names"
+		query = "SELECT name FROM `%s` WHERE `id`= %i LIMIT 1" % (tableName, id)
+
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			name = cursor.fetchone()		# get all results and keep only the first
+
+		return name[0]
+
+	# get best 10 players order by influence
+	def getBestPlayers(self):
+		bestPlayers = []
+		query = "SELECT * FROM `player` ORDER BY `influence` DESC LIMIT 10"
+		try:
+			cursor = self.getDictCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			bestPlayers = cursor.fetchall()		# get all results
+
+		return bestPlayers
 
 	'''
 	UPDATES

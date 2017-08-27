@@ -149,29 +149,18 @@ def buyAdventurer(user_token, adventurer_id):
 		"data": {}
 	}
 	errors = False
-	if re.match('[A-Fa-f0-9]{64}',user_token):
-		try:
-			data = request.get_json(cache=False)	# read request data
-		except:
-			errors = True
-			response['status'] = 404
-			response['description'] = 'Error: invalid parameters'
-	else:
+	if not re.match('[A-Fa-f0-9]{64}',user_token):
 		errors = True
 		response['status'] = 400
 		response['description'] = 'Error: user_token must be a sha256'
 
 	if not errors:
-		# read gold parameter
-		try:
-			gold = data['gold']
-		except:
-			errors = True
-			response['status'] = 404
-			response['description'] = 'Error: gold parameter not found'
+		data = request.get_json(cache=False)
+		name = data['name'] if data.has_key('name') else None
+
 	if not errors:
 		manager = gameManager.gameManager()
-		response = manager.buyAdventurer(user_token, adventurer_id, gold)
+		response = manager.buyAdventurer(user_token, adventurer_id, name)
 
 	return json.dumps(response)
 
@@ -273,6 +262,25 @@ def completeQuest(user_token, questID):
 		errors = True
 		response['status'] = 400
 		response['description'] = 'Error: user_token must be a sha256'
+
+	return json.dumps(response)
+
+# endpoint to get the ranking
+@app.route("/ranking", methods=['GET'])
+def getRanking():
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+
+	manager = gameManager.gameManager()
+	response = manager.getRanking()
+
+	if response['status'] != 200:
+		response['status'] = response['status']
+		response['description'] = response['description']
 
 	return json.dumps(response)
 

@@ -4,6 +4,7 @@
 from lib.daos import DAOGame
 from src.models import adventurerModel
 from src.models import questModel
+from lib.daos import DAOLogin
 import random, datetime
 
 class gameManager(object):
@@ -16,14 +17,16 @@ class gameManager(object):
 		response = {}
 
 		if self.db:
-			response['info'] = self.db.getPlayer(user_token)
+			response['data'] = self.db.getPlayer(user_token)
+			response['status'] = 200
+			response['description'] = "OK"
 		else:
 			response['status'] = 500
-			response['description'] = "Error: could not connect to database. "
+			response['description'] = "Error: could not connect to database"
 		return response
 
 	# get a random number of adventurers from database
-	def getAdventurers(self, size = 1):
+	def getAdventurers(self, size = 1, returnObj = False):
 		
 		response = {}
 		
@@ -38,15 +41,22 @@ class gameManager(object):
 			for adventurerID in adventurerIDs:
 				adventurer = adventurerModel.adventurerModel()
 				dbadventurer = self.db.getAdventurer(adventurerID)
+
 				adventurer.init(dbadventurer)
+
+				# generate random name
+				adventurer.name = self.generateName(adventurer.sex)
 				adventurers.append(adventurer)
-			
+
+			if returnObj:
+				return adventurers
+
 			if len(adventurers) > 0:
 				response['status'] = 200
 				response['description'] = 'OK'
-				response['data'] = []
+				response['data'] = {"adventurers" : []}
 				for adventurer in adventurers:
-					response['data'].append(adventurer.serialize())
+					response['data']['adventurers'].append(adventurer.serialize())
 
 			else:
 				response['status'] = 500
@@ -69,11 +79,17 @@ class gameManager(object):
 				adventurer = adventurerModel.adventurerModel()
 				adventurer.init(self.db.getAdventurer(userAdventurer['adventurer_id']))
 				
+				# assing current quest
+				adventurer.onQuest = userAdventurer['on_quest']
+				
 				# check if this adventurer is on a quest
 				if userAdventurer['on_quest'] > 0:
-					adventurers.append(adventurer)
-				else:
 					adventurersOnQuest.append(adventurer)
+				else:
+					adventurers.append(adventurer)
+
+				# assign name
+				adventurer.name = userAdventurer['name']
 
 			response['status'] = 200
 			response['description'] = 'OK'
@@ -91,25 +107,38 @@ class gameManager(object):
 
 		return response
 
-	# asign an adventurer to a user
-	def buyAdventurer(self, user_token, adventurer_id, gold):
+	# buy an adventurer to a user
+	def buyAdventurer(self, user_token, adventurer_id, name):
 		response = {}
 		errors = False
-		if adventurer_id > 0:
-			if self.db:
-				if gold > 0:
-					# get player
-					player = self.db.getPlayer(user_token)
+
+		if adventurer_id > 0 and not errors:
+			if self.db and name:
+				# get player
+				player = self.db.getPlayer(user_token)
+
+				# get adventurer
+				adventurer = self.db.getAdventurer(adventurer_id)
+
+				# check if player already have this adventurer
+				if not self.db.getUserAdventurer(user_token, adventurer_id):
+					# calculate gold
+					gold = adventurer['price']
+				
+					if player['gold'] < adventurer['price']:
+						errors = True
+						response['status'] = 400
+						response['description'] = 'Error: not enough gold. Player gold is '+ str(player['gold']) + " and adventurer price is " + str(adventurer['price'])
+					else:
+						# subtract gold from player
+						finalGold = int(player['gold']) - int(gold)
 					
-					# subtract gold from player
-					finalGold = player['gold'] - gold 
-					
-					# set new gold value
-					updated = self.db.updatePlayerGold(user_token, gold)
+						# set new gold value
+						updated = self.db.updatePlayerGold(user_token, finalGold)
 				else:
 					errors = True
-					response['status'] = 400
-					response['description'] = 'Error: gold must be greater than 0'
+					response['status'] = 404
+					response['description'] = 'Error: player ' + user_token + " already have adventurer " + str(adventurer_id)
 			else:
 				errors = True
 				response['status'] = 500
@@ -121,7 +150,7 @@ class gameManager(object):
 
 		if not errors:
 			if updated:
-				response = self.db.insertUserAdventurer(user_token, adventurer_id)
+				response = self.db.insertUserAdventurer(user_token, adventurer_id, name)
 			else:
 				response['status'] = 400
 				response['description'] = 'Error: player '+ user_token +' have not enough gold'
@@ -137,23 +166,26 @@ class gameManager(object):
 
 			# get last id to know the limit of the random id
 			idLimit = self.db.getLastID('quest')
-
-			# generate random ids
-			questsIDs = self.generateRandomIDs(size, idLimit)
-			
-			for questID in questsIDs:
-				quest = questModel.questModel()
+			for r in xrange(size):
+				# generate random ids
+				questID = self.generateRandomIDs(1, idLimit)[0]
+				
 				dbquest = self.db.getQuest(questID)
 				if dbquest:
+					while int(dbquest['level']) != level:
+						questID = self.generateRandomIDs(1, idLimit)[0]
+						dbquest = self.db.getQuest(questID)
+
+					quest = questModel.questModel()
 					quest.init(dbquest)
 					quests.append(quest)
 			
 			if len(quests) > 0:
 				response['status'] = 200
 				response['description'] = 'OK'
-				response['data'] = []
+				response['data'] = {"quests": []}
 				for quest in quests:
-					response['data'].append(quest.serialize())
+					response['data']['quests'].append(quest.serialize())
 
 			else:
 				response['status'] = 500
@@ -228,11 +260,13 @@ class gameManager(object):
 			for userQuest in userQuests:
 				quest = questModel.questModel()
 				quest.init(self.db.getQuest(userQuest['quest_id']))
+				quest.success_rate = userQuest['success_rate']
 				if (userQuest['date_finished'] - now).total_seconds() <= 0:
 					# this quest is completed
 					quests['completed'].append(quest.serialize())
 
 				else:
+					quest.finished_date = userQuest['date_finished'].strftime("%Y-%m-%d %H:%M:%S")
 					quests['in_progress'].append(quest.serialize())
 
 			response['status'] = 200
@@ -303,6 +337,32 @@ class gameManager(object):
 					response['description'] = "Error: could not update gold reward"
 		return response
 
+	# returns the 10 best players according to their influence value
+	def getRanking(self):
+		response = {}
+		response['status'] = 200
+		response['description'] = "OK"
+		errors = False
+		bestPlayers = []
+		bestUsers = []
+		if self.db:
+			# get best 10 players
+			bestPlayers = self.db.getBestPlayers()
+
+			if bestPlayers:
+				dbLogin = DAOLogin.DAOLogin()
+				if dbLogin:
+					for player in bestPlayers:
+						username = dbLogin.getUsername(player['user_token'])
+						bestUser = {"username": username, "influence": player['influence']}
+						bestUsers.append(bestUser)
+
+					response['data'] = {"ranking": bestUsers}
+				else:
+					response['status'] = 500
+					response['description'] = "Error connecting to login database"
+		return response
+
 	'''
 	TOOLS
 	'''
@@ -340,3 +400,12 @@ class gameManager(object):
 			success = True
 
 		return success
+
+	# get a random name depending on sex
+	def generateName(self, sex):
+		idLimit = self.db.getLastID(sex+'_adventurer_names')
+		id = self.generateRandomIDs(1, idLimit)[0]
+
+		name = self.db.getName(sex, id)
+
+		return name
