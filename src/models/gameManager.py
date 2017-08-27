@@ -4,6 +4,7 @@
 from lib.daos import DAOGame
 from src.models import adventurerModel
 from src.models import questModel
+from lib.daos import DAOLogin
 import random, datetime
 
 class gameManager(object):
@@ -334,6 +335,32 @@ class gameManager(object):
 					errors = True
 					response['status'] = 500
 					response['description'] = "Error: could not update gold reward"
+		return response
+
+	# returns the 10 best players according to their influence value
+	def getRanking(self):
+		response = {}
+		response['status'] = 200
+		response['description'] = "OK"
+		errors = False
+		bestPlayers = []
+		bestUsers = []
+		if self.db:
+			# get best 10 players
+			bestPlayers = self.db.getBestPlayers()
+
+			if bestPlayers:
+				dbLogin = DAOLogin.DAOLogin()
+				if dbLogin:
+					for player in bestPlayers:
+						username = dbLogin.getUsername(player['user_token'])
+						bestUser = {"username": username, "influence": player['influence']}
+						bestUsers.append(bestUser)
+
+					response['data'] = {"ranking": bestUsers}
+				else:
+					response['status'] = 500
+					response['description'] = "Error connecting to login database"
 		return response
 
 	'''

@@ -265,6 +265,25 @@ def completeQuest(user_token, questID):
 
 	return json.dumps(response)
 
+# endpoint to get the ranking
+@app.route("/ranking", methods=['GET'])
+def getRanking():
+	# response template
+	response = {
+		"status": 200,
+		"description": "OK",
+		"data": {}
+	}
+
+	manager = gameManager.gameManager()
+	response = manager.getRanking()
+
+	if response['status'] != 200:
+		response['status'] = response['status']
+		response['description'] = response['description']
+
+	return json.dumps(response)
+
 
 if __name__ == "__main__":
 	app.run(
