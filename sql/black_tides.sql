@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-07-2017 a las 18:33:28
+-- Tiempo de generación: 27-08-2017 a las 10:40:30
 -- Versión del servidor: 5.7.9
 -- Versión de PHP: 5.6.16
 
@@ -1052,12 +1052,251 @@ INSERT INTO `adventurer` (`id`, `adv_class`, `strength`, `intelligence`, `agilit
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `female_adventurer_names`
+--
+
+DROP TABLE IF EXISTS `female_adventurer_names`;
+CREATE TABLE IF NOT EXISTS `female_adventurer_names` (
+  `name` varchar(100) CHARACTER SET utf8 NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=MyISAM AUTO_INCREMENT=101 DEFAULT CHARSET=latin1;
+
+--
+-- Volcado de datos para la tabla `female_adventurer_names`
+--
+
+INSERT INTO `female_adventurer_names` (`name`, `id`) VALUES
+('Glenna ''Renegade'' Nealuchi', 1),
+('Luna ''Swashbuckler'' Granger', 2),
+('Esta ''Mumbling'' Blakemore', 3),
+('Albina ''No Knees'' Brooks', 4),
+('Missy ''Gorgeous'' Webb', 5),
+('Lida ''Renegade'' Thorne', 6),
+('Blythe ''The Rat'' Leighton', 7),
+('Vergie ''Smiling'' Wheatleigh', 8),
+('Christie ''Zigzag'' Riley', 9),
+('Misty ''Phantasm'' Sweet', 10),
+('Ulrika ''Salty Dog'' Carlyle', 11),
+('Neda ''The Wall'' Layre', 12),
+('Allene ''Dubloon'' Payne', 13),
+('Lenore ''The Drunk'' Rave', 14),
+('Bertha ''Privateer'' Hammett', 15),
+('Metta ''Foul'' Reyson', 16),
+('Carrie ''Frenzied'' Milton', 17),
+('Alma ''Daffy'' Vesh', 18),
+('Aldercy ''Golden Hair'' Rudges', 19),
+('Bulah ''The Stubborn'' Harley', 20),
+('Gytha ''Quartermaster'' Rutherford', 21),
+('Martina ''Crow''s Nest'' Thorne', 22),
+('Christmas ''Smiling'' Tristan', 23),
+('Janie ''Squealer'' Sydney', 24),
+('Eve ''Shark Bait'' Sax', 25),
+('Amber ''Buccaneer'' Eulisses', 26),
+('Eleanora ''Marooner'' Puck', 27),
+('Haylee ''Crooked'' Darth', 28),
+('Celia ''Striker'' Clare', 29),
+('Vina ''Pretender'' Gastly', 30),
+('Edrea ''Shrew'' Wither', 31),
+('Mercedes ''Plankton'' Mildenhall', 32),
+('Maria ''Landlubber'' Walthorn', 33),
+('Doris ''Liar'' Dewl', 34),
+('Arleigh ''Mad Eyes'' Garrick', 35),
+('Leola ''Grimace'' Burbridge', 36),
+('Vertie ''Goddess'' Nightwind', 37),
+('Lessie ''Evil Grin'' Murray', 38),
+('Aimee ''The Hero'' Bucker', 39),
+('Laverne ''Killer'' Derane', 40),
+('Gay ''Disfigured'' Eastoft', 41),
+('Corrine ''Smelly'' Salvotor', 42),
+('Bliss ''Yellow Teeth'' Lynx', 43),
+('Madeline ''Scurvy'' Sweat', 44),
+('Angelina ''Silver Hair'' Clifton', 45),
+('Betty ''The Wrath'' Newbery', 46),
+('Eva ''Devious'' Rudges', 47),
+('Augustine ''Scurvy'' Nottley', 48),
+('Margaret ''White Hair'' Smithy', 49),
+('Imogene ''Mutiny'' Reeves', 50),
+('Bettie ''Charming'' Oldham', 51),
+('Lular ''Plankton'' Prince', 52),
+('Cassie ''Twitching'' Stratford', 53),
+('Margery ''Bashed'' Darby', 54),
+('Mallie ''The Confident'' Carmine', 55),
+('Hermina ''Landlubber'' Zulu', 56),
+('Henry ''No Knees'' Panther', 57),
+('Katie ''The Siren'' Quway', 58),
+('Ana ''Crew Member'' Rhys', 59),
+('Idella ''Executioner'' Forten', 60),
+('Luetta ''Pretender'' Virion', 61),
+('Beryl ''Ruthless'' Read', 62),
+('Bernice ''Hex'' Buckler', 63),
+('Lassie ''Jolly'' Leviathan', 64),
+('Harper ''The Unseen'' Bristol', 65),
+('Roxie ''Two Toes'' Watt', 66),
+('Hattie ''The Siren'' Theodore', 67),
+('Althea ''The Lion'' Ephraim', 68),
+('Ida ''Slayer'' Deighton', 69),
+('Signe ''Executioner'' Barney', 70),
+('Tressa ''The Bright'' Whulsup', 71),
+('Annette ''Intrepid'' Lindsey', 72),
+('Gertrude ''One Leg'' Emsworth', 73),
+('Summer ''Coward'' Remington', 74),
+('Shirley ''Crafty'' Bonney', 75),
+('Paulina ''Furious'' Thorpe', 76),
+('Mercedes ''Hideous'' Argent', 77),
+('Artie ''Lost Soul'' Obsidian', 78),
+('Faith ''Coward'' Spalding', 79),
+('Wendy ''Twisting'' Vexx', 80),
+('Delta ''Silver-Eye'' Omar', 81),
+('Elsie ''Hex'' Graeme', 82),
+('Alverdine ''Tormenting'' Clinton', 83),
+('Betsy ''Weasel'' Blade', 84),
+('Cynthia ''The Flirt'' Tyndall', 85),
+('Sally ''Black Eyes'' Pinkerton', 86),
+('Cicely ''Salty Dog'' Rakshasas', 87),
+('Magnolia ''Mumbling'' Bradshaw', 88),
+('Phoebe ''The Boar'' Dhampir', 89),
+('Hazel ''Feral'' Puck', 90),
+('Blake ''The Flirt'' Davenport', 91),
+('Orpha ''Shadow'' Penney', 92),
+('Beck ''The Siren'' Royal', 93),
+('Leola ''Four Fingers'' Combs', 94),
+('Addison ''Brown Tooth'' Swien', 95),
+('Tatum ''Howler'' Driscoll', 96),
+('Martina ''Four-Teeth'' Snape', 97),
+('Isabell ''Reaper'' Brink', 98),
+('Udele ''The Dog'' Lincoln', 99),
+('Pearl ''Shaded'' Johnson', 100);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `male_adventurer_names`
+--
+
+DROP TABLE IF EXISTS `male_adventurer_names`;
+CREATE TABLE IF NOT EXISTS `male_adventurer_names` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `male_adventurer_names`
+--
+
+INSERT INTO `male_adventurer_names` (`id`, `name`) VALUES
+(1, 'Meldon ''The Cruel'' Reeve'),
+(2, 'Blackstone ''Roaring'' Armstead'),
+(3, 'Coakley ''Frenzied'' Damien'),
+(4, 'Osbert ''The Cold'' Heinrik'),
+(5, 'Barker ''Tide Turner'' Drakkar'),
+(6, 'Emmett ''Immortal'' Viktor'),
+(7, 'Shelley ''Squealer'' Granger'),
+(8, 'Wells ''Dishonest'' Dhampir'),
+(9, 'Elmore ''Killer'' Ragnor'),
+(10, 'Garson ''Crabby'' Paddley'),
+(11, 'Brawley ''Fishy'' Driscoll'),
+(12, 'Emerson ''Toxic'' Reyson'),
+(13, 'Rodman ''Daffy'' Hayden'),
+(14, 'Bronson ''Devil''s Charm'' Shearman'),
+(15, 'Gray ''Daffy'' Drace'),
+(16, 'Grayson ''Evil Grin'' Fiske'),
+(17, 'Redley ''Iron Chest'' Ramsey'),
+(18, 'Ruston ''Immortal'' Ainsworth'),
+(19, 'Wingate ''Whitemane'' Sampson'),
+(20, 'Beaman ''Crafty'' Tydes'),
+(21, 'Derland ''The Mad'' Klark'),
+(22, 'Wainwright ''The Idiot'' Blankley'),
+(23, 'Gomer ''Yellow Teeth'' Reeves'),
+(24, 'Addison ''Sly'' Swien'),
+(25, 'Whitley ''Adventure'' Rhys'),
+(26, 'Shaw ''Furious'' Preston'),
+(27, 'Osier ''The Handsome'' Oldham'),
+(28, 'Marland ''Insanity'' Allerton'),
+(29, 'Ewald ''The Banished'' Chrom'),
+(30, 'Wardell ''Gentle Heart'' Alston'),
+(31, 'Wadsworth ''Grisly'' Bartholomew'),
+(32, 'Darrow ''Hideous'' Wither'),
+(33, 'Channing ''Twisting'' Nash'),
+(34, 'Averill ''The Straight'' Nicholai'),
+(35, 'Jefferson ''The Fool'' Harley'),
+(36, 'Whitfield ''Relentless'' Smither'),
+(37, 'Goldsmith ''Wrathful'' Pickering'),
+(38, 'Reginald ''Fuming'' Law'),
+(39, 'Lanny ''The Marked'' Walthorn'),
+(40, 'Berthold ''Black Beard'' Carlisle'),
+(41, 'Amory ''Betrayer'' Carlyle'),
+(42, 'Breck ''Barbarian'' Alabaster'),
+(43, 'Shelley ''One-Tooth'' Sherman'),
+(44, 'Nyle ''Subtle'' Satan'),
+(45, 'Arundel ''Privateer'' Dudley'),
+(46, 'Farr ''Grimace'' Aranas'),
+(47, 'Hurlbert ''One Eye'' Burton'),
+(48, 'Sherill ''Daffy'' Joshua'),
+(49, 'Eldred ''Blunder'' Thyme'),
+(50, 'Modred ''The Mad'' Virion'),
+(51, 'Dawson ''Pirate'' Forrest'),
+(52, 'Shaw ''Toxic'' Crowley'),
+(53, 'Bronson ''Foul'' Browning'),
+(54, 'Winfield ''Rambling'' Granger'),
+(55, 'Rodney ''Twitching'' Yardley'),
+(56, 'Byron ''Privateer'' Sephiran'),
+(57, 'Vinson ''Pirate'' Shell'),
+(58, 'Kody ''The Legend'' Panther'),
+(59, 'Buxton ''Striker'' Jinx'),
+(60, 'Kingsley ''Silver-Eye'' Lucifer'),
+(61, 'Speed ''Silver-Eye'' Tattersall'),
+(62, 'Alvin ''Lionheart'' Alby'),
+(63, 'Renwick ''Slayer'' Stratford'),
+(64, 'Ackerley ''The Banished'' Rave'),
+(65, 'Keyes ''Furious'' Balthier'),
+(66, 'Bond ''The Ghost'' Tydes'),
+(67, 'Blakely ''Ruthless'' Cooper'),
+(68, 'Dover ''Braveheart'' Glacier'),
+(69, 'Greenwood ''Black Beard'' Bradford'),
+(70, 'Bramwell ''Iron Fists'' Starbeeze'),
+(71, 'Howard ''Shadow'' Rogue'),
+(72, 'Langford ''The Slug'' Atherton'),
+(73, 'Gifford ''Bashed'' Crowley'),
+(74, 'Portland ''The Stubborn'' Kendal'),
+(75, 'Marlon ''Ugly Mug'' Bristol'),
+(76, 'Arnold ''Deserter'' Whulsup'),
+(77, 'Harlow ''Intrepid'' Spalding'),
+(78, 'Upton ''Reaper'' Sykes'),
+(79, 'Birney ''Smelly'' Graeme'),
+(80, 'Peel ''Deceit'' Nash'),
+(81, 'Edwin ''The Legend'' Alistair'),
+(82, 'Tennant ''Toothless'' Shelby'),
+(83, 'Holden ''Dawg'' Riley'),
+(84, 'Dell ''Bashed'' Hogan'),
+(85, 'Renshaw ''Gray Beard'' Ashley'),
+(86, 'Cynric ''Furious'' Shirley'),
+(87, 'Blade ''Executioner'' Lynk'),
+(88, 'Hunt ''The Kraken'' Buckley'),
+(89, 'Halton ''Ghostly'' Hailey'),
+(90, 'Lee ''Treasure'' Petrik'),
+(91, 'Warwick ''Foul'' Wyther'),
+(92, 'Oscar ''Salty'' Grendel'),
+(93, 'Tomlin ''Whitemane'' Finch'),
+(94, 'Renwick ''Lionheart'' Garside'),
+(95, 'Carlyle ''Foxy'' Norman'),
+(96, 'Tranter ''Four-Eyes'' Smithers'),
+(97, 'Lanny ''The Wrath'' Nightwind'),
+(98, 'Edison ''The Confident'' Dewl'),
+(99, 'Maxfield ''Whitemane'' Glacier'),
+(100, 'Rockwell ''The Unseen'' Stryker');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `player`
 --
 
 DROP TABLE IF EXISTS `player`;
 CREATE TABLE IF NOT EXISTS `player` (
-  `user_token` varchar(255) NOT NULL,
+  `user_token` varchar(255) CHARACTER SET utf8 NOT NULL,
   `location` int(4) NOT NULL,
   `gold` int(11) NOT NULL,
   `influence` int(11) NOT NULL,
@@ -1077,9 +1316,10 @@ CREATE TABLE IF NOT EXISTS `player_adventurers` (
   `user_token` varchar(255) NOT NULL,
   `adventurer_id` int(11) NOT NULL,
   `on_quest` int(1) NOT NULL DEFAULT '0',
+  `name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_token` (`user_token`,`adventurer_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -1095,7 +1335,7 @@ CREATE TABLE IF NOT EXISTS `player_quest` (
   `date_finished` datetime DEFAULT NULL,
   `success_rate` float NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
