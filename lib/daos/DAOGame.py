@@ -303,6 +303,21 @@ class DAOGame(DAOSql):
 
 		return name[0]
 
+	# get best 10 players order by influence
+	def getBestPlayers(self):
+		bestPlayers = []
+		query = "SELECT * FROM `player` ORDER BY `influence` DESC LIMIT 10"
+		try:
+			cursor = self.getDictCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			bestPlayers = cursor.fetchall()		# get all results
+
+		return bestPlayers
+
 	'''
 	UPDATES
 	'''

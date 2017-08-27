@@ -71,3 +71,20 @@ class DAOLogin(DAOSql):
 			cursor.close()						# close cursor 
 
 		return response
+
+	# get a username from database using user_token
+	def getUsername(self, user_token):
+		
+		query = "SELECT username FROM `user` WHERE `user_token` = '%s'" % (user_token)
+
+		try:
+			cursor = self.getCursor(query)
+		except Exception, e:
+			print str(e)
+			cursor = None
+
+		if cursor:
+			response = cursor.fetchone()	# get all results and keep only the first
+			cursor.close()						# close cursor 
+
+		return response[0]
