@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 18-07-2017 a las 18:33:44
+-- Tiempo de generación: 27-08-2017 a las 10:41:02
 -- Versión del servidor: 5.7.9
 -- Versión de PHP: 5.6.16
 
@@ -31,7 +31,6 @@ CREATE TABLE IF NOT EXISTS `user` (
   `username` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `salt` varchar(40) NOT NULL,
   `creation_date` datetime NOT NULL,
   `user_token` varchar(255) NOT NULL,
   `enabled` int(11) NOT NULL,
