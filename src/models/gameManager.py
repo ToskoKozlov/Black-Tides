@@ -309,6 +309,10 @@ class gameManager(object):
 						errors = True
 						response['status'] = 500
 						response['description'] = "Error: could not update gold reward"
+				else:
+					# unsuccessful quest
+					finalGold = player['gold']
+					finalInfluence = player['influence']
 			else:
 				errors = True
 				response['status'] = 500
